@@ -1,14 +1,18 @@
 // Modules
 const express = require("express");
+const path = require("path");
 
 // Constants
 const PORT = 3000;
+const BUILD_PATH = "client/build";
 
 // Initialize express app
 const app = express();
+app.use(express.static(path.join(__dirname, BUILD_PATH)));
 
+// Serve react app
 app.get("/", (req, res) => {
-    res.send("<h1>Foo world</h1>");
+    res.sendFile(path.join(__dirname, BUILD_PATH,"index.html"));
 });
 
 // Start server

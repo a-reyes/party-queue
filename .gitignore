@@ -130,6 +130,7 @@ public/
 
 node_modules
 bower_componets
+build
 
 *.sublime*
 
