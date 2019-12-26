@@ -1,9 +1,9 @@
 // Modules
 const express = require("express");
 const path = require("path");
+const config = require("./config");
 
 // Constants
-const PORT = 3000;
 const BUILD_PATH = "client/build";
 
 // Initialize express app
@@ -17,4 +17,4 @@ app.get("/", (req, res) => {
 
 // Start server
 app.listen(PORT);
-console.log(`Listening on Port ${PORT}...`);
+console.log(`Listening on Port ${config.PORT}...`);
