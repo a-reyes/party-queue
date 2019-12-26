@@ -4,7 +4,9 @@
   "description": "Full stack web application that uses the Spotify API to allow a group of users to collaboratively add to the same song queue.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "nodemon server.js"
   },
   "repository": {
     "type": "git",
