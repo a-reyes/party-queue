@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/a-reyes/party-queue/issues"
   },
-  "homepage": "https://github.com/a-reyes/party-queue#readme"
+  "homepage": "https://github.com/a-reyes/party-queue#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
