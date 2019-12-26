@@ -1,0 +1,24 @@
+{
+  "name": "party-queue",
+  "version": "1.0.0",
+  "description": "Full stack web application that uses the Spotify API to allow a group of users to collaboratively add to the same song queue.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a-reyes/party-queue.git"
+  },
+  "keywords": [
+    "spotify",
+    "express",
+    "react"
+  ],
+  "author": "Alex Reyes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/a-reyes/party-queue/issues"
+  },
+  "homepage": "https://github.com/a-reyes/party-queue#readme"
+}
