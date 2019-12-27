@@ -25,6 +25,7 @@
   "homepage": "https://github.com/a-reyes/party-queue#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "express-session": "^1.17.0"
+    "express-session": "^1.17.0",
+    "request": "^2.88.0"
   }
 }
