@@ -1,7 +1,7 @@
 // Modules
 const express = require("express");
 const session = require("express-session");
-const request = require("request");
+const request = require("request-promise-native");
 const path = require("path");
 const querystring = require("querystring");
 const config = require("./config");
