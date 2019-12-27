@@ -42,7 +42,7 @@ app.get("/login", (req, res) => {
 });
 
 // Redirect route after external spotify login
-app.get("/callback", (req, res) => {
+app.get("/callback", async (req, res) => {
     const { code, state, error } = req.query;
     const userState = req.session.state;
 
@@ -73,36 +73,48 @@ app.get("/callback", (req, res) => {
         };
 
         // Send request
-        request.post(authData).then(response => {
-            if (response.statusCode === 200) {
-                const body = response.body;
-                const accessToken = body.access_token;
-                const refreshToken = body.refresh_token;
-
-                const reqData = {
-                    uri: "https://api.spotify.com/v1/me",
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        json: true
-                    }
-                };
-
-                request.get(reqData).then(body => {
-                    // TODO: change route
-                    console.log(body);
-                    res.json(body);
-                });
-
-            } else {
-                // TODO: handle alternate status codes
-                console.log(response);
-                res.send("Error: could not authenticate.");
-            }
-        }).catch(err => {
+        let authRes;
+        try {
+            authRes = await request.post(authData);
+        } catch (err) {
             // TODO: implement proper error handling
             console.log(err);
             res.send("Error: could not authenticate.");
-        });
+            return;
+        }
+
+        if (authRes.statusCode === 200) {
+            const body = authRes.body;
+            const accessToken = body.access_token;
+            const refreshToken = body.refresh_token;
+
+            const reqData = {
+                uri: "https://api.spotify.com/v1/me",
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    json: true
+                }
+            };
+
+            let resBody;
+            try {
+                resBody = await request.get(reqData);
+            } catch (err) {
+                // TODO: implement proper error handling
+                console.log(err);
+                res.send("Error: an error occurred.");
+                return;
+            }
+
+            // TODO: change route
+            console.log(resBody);
+            res.json(resBody);
+
+        } else {
+            // TODO: handle alternate status codes
+            console.log(authRes);
+            res.send("Error: could not authenticate.");
+        }
         
     }
 
