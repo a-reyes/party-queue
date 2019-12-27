@@ -2,6 +2,7 @@
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
+const querystring = require("querystring");
 const config = require("./config");
 
 // Constants
@@ -17,6 +18,20 @@ app.use(session({  // Setup session data
         maxAge: SESSION_LENGTH
     }
 }));
+
+// Allow the user to authorize their spotify account
+app.get("/login", (req, res) => {
+    const query = querystring.encode({
+        client_id: config.CLIENT_ID,
+        response_type: "code",
+        redirect_uri: config.REDIRECT_URI,
+        state: "to-be-implemented",
+        scope: "user-read-private user-read-email"
+    });
+
+    // Redirect to spotify
+    res.redirect(`https://accounts.spotify.com/authorize?${query}`);
+});
 
 // Serve react app on al other non-specified routes
 app.get("/*", (req, res) => {
