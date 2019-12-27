@@ -16,5 +16,5 @@ app.get("/", (req, res) => {
 });
 
 // Start server
-app.listen(PORT);
+app.listen(config.PORT);
 console.log(`Listening on Port ${config.PORT}...`);
