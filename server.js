@@ -88,12 +88,15 @@ app.get("/callback", async (req, res) => {
             const accessToken = body.access_token;
             const refreshToken = body.refresh_token;
 
+            req.session.accessToken = accessToken;
+            req.session.refreshToken = refreshToken;
+
             const reqData = {
                 uri: "https://api.spotify.com/v1/me",
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    json: true
-                }
+                    Authorization: `Bearer ${accessToken}`
+                },
+                json: true
             };
 
             let resBody;
@@ -116,6 +119,52 @@ app.get("/callback", async (req, res) => {
             res.send("Error: could not authenticate.");
         }
         
+    }
+
+});
+
+app.get("/search", (req, res, next) => {
+    const query = req.query;
+    if (!query.search) {
+        res.status(400).send("Error 400: No search field specified.");
+    } else {
+        next();
+    }
+});
+
+app.get("/search", async (req, res) => {
+    // TODO: verify that user is logged in
+    const search = req.query.search;
+
+    const reqOptions = {
+        uri: "https://api.spotify.com/v1/search",
+        headers: {
+            Authorization: `Bearer ${req.session.accessToken}`
+        },
+        qs: {
+            q: search,
+            type: "track"
+        },
+        json: true,
+        resolveWithFullResponse: true
+    };
+
+    let response;
+    try {
+        response = await request.get(reqOptions);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error 500: an error occurred");
+        return;
+    }
+
+    if (response.statusCode === 200) {
+        const body = response.body;
+        res.json(body);
+    } else {
+        // TODO: implement this
+        console.log(response);
+        res.send("An error occurred");
     }
 
 });
