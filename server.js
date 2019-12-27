@@ -108,7 +108,7 @@ app.get("/callback", (req, res) => {
 
 });
 
-// Serve react app on al other non-specified routes
+// Serve react app on all other non-specified routes
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, BUILD_PATH, "index.html"));
 });
