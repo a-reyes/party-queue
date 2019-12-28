@@ -7,10 +7,15 @@ import "./temp-styles.css";
 
 const App = () => {
 
+    const [trackQueue, setTrackQueue] = useState([]);
+    const addToQueue = (track) => {
+        setTrackQueue(trackQueue.concat(track));
+    };
+
     return (
         <div className="col-2">
-            <TrackSearch />
-            <TrackQueue tracks={[]} />
+            <TrackSearch addToQueue={addToQueue} />
+            <TrackQueue tracks={trackQueue} />
         </div>
     );
 

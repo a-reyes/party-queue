@@ -1,7 +1,7 @@
 import React from "react";
 
-const AddQueueButton = () => (
-    <button>Add</button>
+const AddQueueButton = ({ onClick }) => (
+    <button onClick={onClick}>Add</button>
 );
 
 export default AddQueueButton;

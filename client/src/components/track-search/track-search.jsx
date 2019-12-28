@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TrackListItem from "../track-list-item/track-list-item";
 import AddQueueButton from "../add-queue-button/add-queue-button";
 
-const TrackSearch = () => {
+const TrackSearch = ({ addToQueue }) => {
 
     // Search text entered into the text input
     const [searchText, setSearchText] = useState("");
@@ -38,7 +38,7 @@ const TrackSearch = () => {
             <div className="search-results">
                 {searchResults.map(trackInfo => (
                     <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>
-                        <AddQueueButton />
+                        <AddQueueButton onClick={() => addToQueue(trackInfo)} />
                     </TrackListItem>
                 ))}
             </div>
