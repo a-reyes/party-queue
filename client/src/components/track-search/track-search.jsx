@@ -10,7 +10,7 @@ const TrackSearch = () => {
     // Array of results recieved from the server
     const [searchResults, setSearchResults] = useState([]);
     const sendSearchRequest = () => {
-        fetch(`/search?search=${searchText}`)
+        fetch(`/search?search=${searchText}*`)
         // TODO: This will fail (and not return JSON) if user is not logged in
         .then(res => res.json())
         .then(data => {

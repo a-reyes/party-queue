@@ -143,7 +143,7 @@ app.get("/search", async (req, res) => {
         },
         qs: {
             q: search,
-            type: "track"
+            type: "track,artist"
         },
         json: true,
         resolveWithFullResponse: true
