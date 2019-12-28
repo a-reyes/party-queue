@@ -1,13 +1,17 @@
 import React, { Fragment, useState } from "react";
 
 import TrackSearch from "./components/track-search/track-search";
+import TrackQueue from "./components/track-queue/track-queue";
+
+import "./temp-styles.css";
 
 const App = () => {
 
     return (
-        <Fragment>
+        <div className="col-2">
             <TrackSearch />
-        </Fragment>
+            <TrackQueue />
+        </div>
     );
 
 };
