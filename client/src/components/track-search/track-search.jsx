@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TrackListItem from "../track-list-item/track-list-item";
+import AddQueueButton from "../add-queue-button/add-queue-button";
 
 const TrackSearch = () => {
 
@@ -36,7 +37,9 @@ const TrackSearch = () => {
             <button onClick={() => console.log("CLICK!")}>Search</button>
             <div className="search-results">{
                 searchResults.map(trackInfo => (
-                    <TrackListItem key={trackInfo.id} trackInfo={trackInfo} />
+                    <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>
+                        <AddQueueButton />
+                    </TrackListItem>
                 ))
             }</div>
         </div>
