@@ -10,7 +10,7 @@ const App = () => {
     return (
         <div className="col-2">
             <TrackSearch />
-            <TrackQueue />
+            <TrackQueue tracks={[]} />
         </div>
     );
 

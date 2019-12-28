@@ -35,13 +35,13 @@ const TrackSearch = () => {
                 onChange={updateSearchText}
             />
             <button onClick={() => console.log("CLICK!")}>Search</button>
-            <div className="search-results">{
-                searchResults.map(trackInfo => (
+            <div className="search-results">
+                {searchResults.map(trackInfo => (
                     <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>
                         <AddQueueButton />
                     </TrackListItem>
-                ))
-            }</div>
+                ))}
+            </div>
         </div>
     );
 
