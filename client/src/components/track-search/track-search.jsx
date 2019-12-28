@@ -1,9 +1,5 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import TrackListItem from "../track-list-item/track-list-item";
-
-// TEMP
-import sampleResponse from "../../sampleresponse.json";
 
 const TrackSearch = () => {
 
@@ -14,9 +10,20 @@ const TrackSearch = () => {
     // Array of results recieved from the server
     const [searchResults, setSearchResults] = useState([]);
     const sendSearchRequest = () => {
-        const trackInfo = sampleResponse.tracks.items[0];
-        setSearchResults(searchResults.concat(sampleResponse.tracks.items));
+        fetch(`/search?search=${searchText}`)
+        // TODO: This will fail (and not return JSON) if user is not logged in
+        .then(res => res.json())
+        .then(data => {
+            setSearchResults(data.tracks.items)
+        });
     };
+
+    // Send search request to server
+    useEffect(() => {
+        if (searchText !== "") {
+            sendSearchRequest();
+        }
+    }, [searchText]);
 
     return (
         <div className="track-search">
@@ -26,7 +33,7 @@ const TrackSearch = () => {
                 placeholder="Search..."
                 onChange={updateSearchText}
             />
-            <button onClick={sendSearchRequest}>Search</button>
+            <button onClick={() => console.log("CLICK!")}>Search</button>
             <div className="search-results">{
                 searchResults.map(trackInfo => (
                     <TrackListItem key={trackInfo.id} trackInfo={trackInfo} />
