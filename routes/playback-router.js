@@ -5,6 +5,8 @@ const request = require("request-promise-native");
 const router = express.Router();
 
 // Routes
+
+// Resume playback on the active device
 router.get("/resume", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/play",
@@ -37,6 +39,7 @@ router.get("/resume", async (req, res) => {
     }
 });
 
+// Pause playback on the active device
 router.get("/pause", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/pause",
@@ -68,6 +71,7 @@ router.get("/pause", async (req, res) => {
     }
 });
 
+// Play the next track on the active device
 router.get("/next", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/next",
@@ -100,6 +104,7 @@ router.get("/next", async (req, res) => {
     }
 });
 
+// Play the previous track on the active device
 router.get("/previous", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/previous",
