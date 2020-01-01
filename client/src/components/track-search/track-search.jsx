@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import TrackListItem from "../track-list-item/track-list-item";
+import TrackListButton from "../track-list-button/track-list-button";
 
-const TrackSearch = () => {
+const TrackSearch = ({ addToQueue }) => {
 
     // Search text entered into the text input
     const [searchText, setSearchText] = useState("");
@@ -34,11 +35,16 @@ const TrackSearch = () => {
                 onChange={updateSearchText}
             />
             <button onClick={() => console.log("CLICK!")}>Search</button>
-            <div className="search-results">{
-                searchResults.map(trackInfo => (
-                    <TrackListItem key={trackInfo.id} trackInfo={trackInfo} />
-                ))
-            }</div>
+            <div className="search-results">
+                {searchResults.map(trackInfo => (
+                    <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>
+                        <TrackListButton 
+                            text="Add"
+                            handleClick={() => addToQueue(trackInfo)}
+                        />
+                    </TrackListItem>
+                ))}
+            </div>
         </div>
     );
 
