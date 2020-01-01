@@ -25,7 +25,7 @@ const PlaybackControls = props => {
 
         fetch(reqRoute)
         .then(res => {
-            if (res.status === 200) {
+            if (res.ok) {
                 setIsPlaying(!isPlaying);
             } else {
                 alert("An error occurred.");
