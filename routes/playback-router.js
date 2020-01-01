@@ -6,6 +6,44 @@ const router = express.Router();
 
 // Routes
 
+// Get information on the user's currently playing track
+router.get("/current-track", async (req, res) => {
+    const reqOptions = {
+        uri: "https://api.spotify.com/v1/me/player/currently-playing",
+        headers: {
+            Authorization: `Bearer ${req.session.accessToken}`
+        },
+        resolveWithFullResponse: true
+    };
+
+    let response;
+    try {
+        response = await request.get(reqOptions);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 200:
+            console.log(body);
+            res.status(200).json(body);
+            break;
+        case 204:
+            // No track is currently playing
+            // TODO: Implement
+            res.sendStatus(204);
+            break;
+        default:
+            // TODO: Implement 404 (no devices) or 403 (not premium)
+            console.log(response.statusCode);
+            console.log(body);
+            res.sendStatus(response.statusCode);
+    }
+});
+
 // Resume playback on the active device
 router.get("/resume", async (req, res) => {
     const reqOptions = {
