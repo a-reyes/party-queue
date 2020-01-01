@@ -2,6 +2,7 @@ import React, { Fragment, useState } from "react";
 
 import TrackSearch from "./components/track-search/track-search";
 import TrackQueue from "./components/track-queue/track-queue";
+import PlaybackControls from "./components/playback-controls/playback-controls";
 
 import "./temp-styles.css";
 
@@ -28,7 +29,9 @@ const App = () => {
             <TrackQueue 
                 tracks={trackQueue}
                 removeFromQueue={removeFromQueue}
-            />
+            >
+                <PlaybackControls/>
+            </TrackQueue>
         </div>
     );
 
