@@ -1,6 +1,6 @@
 import React from "react";
 import TrackListItem from "../track-list-item/track-list-item";
-import RemoveQueueButton from "../remove-queue-button/remove-queue-button";
+import TrackListButton from "../track-list-button/track-list-button";
 
 const TrackQueue = ({ tracks }) => {
     return (
@@ -9,7 +9,10 @@ const TrackQueue = ({ tracks }) => {
             <div class="track-list">
                 {tracks.map(trackInfo => (
                     <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>
-                        <RemoveQueueButton />
+                        <TrackListButton
+                            text="Remove"
+                            handleClick={() => alert("To be implemented...")}
+                        />
                     </TrackListItem>
                 ))}
             </div>

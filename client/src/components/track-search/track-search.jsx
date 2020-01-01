@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TrackListItem from "../track-list-item/track-list-item";
-import AddQueueButton from "../add-queue-button/add-queue-button";
+import TrackListButton from "../track-list-button/track-list-button";
 
 const TrackSearch = ({ addToQueue }) => {
 
@@ -38,7 +38,10 @@ const TrackSearch = ({ addToQueue }) => {
             <div className="search-results">
                 {searchResults.map(trackInfo => (
                     <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>
-                        <AddQueueButton onClick={() => addToQueue(trackInfo)} />
+                        <TrackListButton 
+                            text="Add"
+                            handleClick={() => addToQueue(trackInfo)}
+                        />
                     </TrackListItem>
                 ))}
             </div>
