@@ -19,7 +19,7 @@ router.get("/resume", async (req, res) => {
         response = await request.put(reqOptions);
     } catch (err) {
         console.log(err);
-        res.status(500).send("Error 500: an error occurred");
+        res.sendStatus(500);
         return;
     }
 
@@ -27,13 +27,13 @@ router.get("/resume", async (req, res) => {
     switch (response.statusCode) {
         case 204:
             console.log("Playback resumed successfully...");
-            res.status(200).send("Playback resumed");
+            res.sendStatus(204);
             break;
         default:
             // TODO: Implement 404 (no devices) or 403 (not premium)
             console.log(response.statusCode);
             console.log(body);
-            res.json(body);
+            res.sendStatus(response.statusCode);
     }
 });
 
@@ -50,8 +50,7 @@ router.get("/pause", async (req, res) => {
     try {
         response = await request.put(reqOptions);
     } catch (err) {
-        console.log(err);
-        res.status(500).send("Error 500: an error occurred");
+        res.sendStatus(500);
         return;
     }
 
@@ -59,13 +58,13 @@ router.get("/pause", async (req, res) => {
     switch (response.statusCode) {
         case 204:
             console.log("Song paused successfully...");
-            res.status(200).send("Paused");
+            res.sendStatus(204);
             break;
         default:
             // TODO: Implement 404 (no devices) or 403 (not premium)
             console.log(response.statusCode);
             console.log(body);
-            res.json(body);
+            res.sendStatus(response.statusCode);
     }
 });
 
@@ -83,7 +82,7 @@ router.get("/next", async (req, res) => {
         response = await request.post(reqOptions);
     } catch (err) {
         console.log(err);
-        res.status(500).send("Error 500: an error occurred");
+        res.sendStatus(500);
         return;
     }
 
@@ -91,13 +90,13 @@ router.get("/next", async (req, res) => {
     switch (response.statusCode) {
         case 204:
             console.log("Song skipped successfully...");
-            res.status(200).send("Song successfully skipped");
+            res.sendStatus(204);
             break;
         default:
             // TODO: Implement 404 (no devices) or 403 (not premium)
             console.log(response.statusCode);
             console.log(body);
-            res.json(body);
+            res.sendStatus(response.statusCode);
     }
 });
 
@@ -115,7 +114,7 @@ router.get("/previous", async (req, res) => {
         response = await request.post(reqOptions);
     } catch (err) {
         console.log(err);
-        res.status(500).send("Error 500: an error occurred");
+        res.sendStatus(500);
         return;
     }
 
@@ -123,13 +122,13 @@ router.get("/previous", async (req, res) => {
     switch (response.statusCode) {
         case 204:
             console.log("Previous song played successfully...");
-            res.status(200).send("Success");
+            res.sendStatus(204);
             break;
         default:
             // TODO: Implement 404 (no devices) or 403 (not premium)
             console.log(response.statusCode);
             console.log(body);
-            res.json(body);
+            res.sendStatus(response.statusCode);
     }
 });
 
