@@ -99,27 +99,7 @@ app.get("/callback", async (req, res) => {
             req.session.accessToken = accessToken;
             req.session.refreshToken = refreshToken;
 
-            const reqData = {
-                uri: "https://api.spotify.com/v1/me",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                },
-                json: true
-            };
-
-            let resBody;
-            try {
-                resBody = await request.get(reqData);
-            } catch (err) {
-                // TODO: implement proper error handling
-                console.log(err);
-                res.send("Error: an error occurred.");
-                return;
-            }
-
-            // TODO: change route
-            console.log(resBody);
-            res.json(resBody);
+            res.redirect("/")
 
         } else {
             // TODO: handle alternate status codes
