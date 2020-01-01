@@ -5,7 +5,7 @@ const request = require("request-promise-native");
 const router = express.Router();
 
 // Routes
-router.get("/play", async (req, res) => {
+router.get("/resume", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/play",
         headers: {
