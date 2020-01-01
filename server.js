@@ -4,6 +4,11 @@ const session = require("express-session");
 const request = require("request-promise-native");
 const path = require("path");
 const querystring = require("querystring");
+
+// Routers
+const playbackRouter = require("./routes/playback-router");
+
+// Other
 const config = require("./config");
 
 // Constants
@@ -19,6 +24,9 @@ app.use(session({  // Setup session data
         maxAge: SESSION_LENGTH
     }
 }));
+
+// Mount routers
+app.use("/playback", playbackRouter);
 
 // Allow the user to authorize their spotify account
 app.get("/login", (req, res) => {
