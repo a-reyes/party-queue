@@ -5,8 +5,36 @@ const request = require("request-promise-native");
 const router = express.Router();
 
 // Routes
-router.get("/play", (req, res) => {
+router.get("/play", async (req, res) => {
+    const reqOptions = {
+        uri: "https://api.spotify.com/v1/me/player/play",
+        headers: {
+            Authorization: `Bearer ${req.session.accessToken}`
+        },
+        resolveWithFullResponse: true
+    };
 
+    let response;
+    try {
+        response = await request.put(reqOptions);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error 500: an error occurred");
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 204:
+            console.log("Playback resumed successfully...");
+            res.status(200).send("Playback resumed");
+            break;
+        default:
+            // TODO: Implement 404 (no devices) or 403 (not premium)
+            console.log(response.statusCode);
+            console.log(body);
+            res.json(body);
+    }
 });
 
 router.get("/pause", async (req, res) => {
