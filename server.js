@@ -34,7 +34,7 @@ app.get("/login", (req, res) => {
         response_type: "code",
         redirect_uri: config.REDIRECT_URI,
         state: STATE,
-        scope: "user-read-private user-read-email"
+        scope: "user-read-private user-read-email user-read-playback-state user-modify-playback-state" 
     });
 
     // Redirect to spotify
