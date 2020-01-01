@@ -13,6 +13,7 @@ router.get("/current-track", async (req, res) => {
         headers: {
             Authorization: `Bearer ${req.session.accessToken}`
         },
+        json: true,
         resolveWithFullResponse: true
     };
 
