@@ -79,6 +79,7 @@ router.get("/callback", async (req, res) => {
 
             req.session.accessToken = accessToken;
             req.session.refreshToken = refreshToken;
+            req.session.isLoggedIn = true;
 
             res.redirect("/")
 
@@ -88,6 +89,20 @@ router.get("/callback", async (req, res) => {
             res.send("Error: could not authenticate.");
         }
     }
+});
+
+// Route to determine if a user is already authenticated
+router.get("/status", (req, res) => {
+    let isLoggedIn;
+    if (req.session.isLoggedIn) {
+        isLoggedIn = true;
+    } else {
+        isLoggedIn = false;
+    }
+
+    res.status(200).json({
+        isLoggedIn: isLoggedIn
+    });
 });
 
 module.exports = router;
