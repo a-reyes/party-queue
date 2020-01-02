@@ -2,7 +2,8 @@
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
-const session = require("express-session");
+const expressSession = require("express-session");
+const sharedSession = require("express-socket.io-session");
 const request = require("request-promise-native");
 const path = require("path");
 
@@ -21,12 +22,17 @@ const SESSION_LENGTH = 3600 * 1000 * 1;  // 1 hour
 const app = express();
 const server = http.createServer(app);
 app.use(express.static(path.join(__dirname, BUILD_PATH)));  // Set static folder
-app.use(session({  // Setup session data
+
+// Set up session
+const session = expressSession({
     secret: "some-secret",
+    resave: true,
+    saveUninitialized: true,
     cookie: {
         maxAge: SESSION_LENGTH
     }
-}));
+});
+app.use(session);
 
 // Mount routers
 app.use("/login", loginRouter);
@@ -85,6 +91,11 @@ app.get("/*", (req, res) => {
 
 // Setup socket.io
 const io = socketIo(server);
+
+// Share session data with sockets
+io.use(sharedSession(session, {
+    autoSave: true
+}));
 
 // Start server
 server.listen(config.PORT, () => console.log(`Listening on Port ${config.PORT}...`));
