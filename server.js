@@ -84,6 +84,45 @@ app.get("/search", async (req, res) => {
 
 });
 
+// Return the user's playlists
+app.get("/playlists", async (req, res) => {
+    console.log("Finding user playlists");
+
+    // Request a list of user playlists from Spotify
+    const accessToken = req.session.accessToken;
+    const reqOptions = {
+        uri: "https://api.spotify.com/v1/me/playlists?limit=50",
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        },
+        json: true,
+        resolveWithFullResponse: true
+    };
+
+    let response;
+    try {
+        response = await request.get(reqOptions);
+    } catch (err) {
+        // TODO: implement
+        console.log(err);
+        res.sendStatus(500);
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 200:
+            // Send data to client
+            res.status(200).json(body);
+            break;
+        default:
+            // TODO: Implement
+            console.log(response.statusCode);
+            console.log(body);
+            res.status(response.statusCode).json(body);
+    }
+});
+
 // Serve react app on all other non-specified routes
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, BUILD_PATH, "index.html"));
