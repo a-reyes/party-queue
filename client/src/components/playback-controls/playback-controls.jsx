@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const PlaybackControls = ({ currentTrack }) => {
+const PlaybackControls = ({ socket, currentTrack, timeoutRef }) => {
     // TODO: Use server requests to verify
     const [isPlaying, setIsPlaying] = useState(true);
     const playPause = () => {
@@ -24,14 +24,20 @@ const PlaybackControls = ({ currentTrack }) => {
 
     // Play the previous song
     const playPrevious = () => {
-        fetch("/playback/previous")
-        // .then(res => getCurrentTrack());
+        console.log("Trying to get previous track...");
+
+        // Clear old timeout
+        clearTimeout(timeoutRef);
+        socket.emit("previous-track");
     };
 
     // Play the next song
     const playNext = () => {
-        fetch("/playback/next")
-        // .then(res => getCurrentTrack());
+        console.log("Trying to get next track...");
+
+        // Clear old timeout
+        clearTimeout(timeoutRef);
+        socket.emit("next-track");
     }
 
     // Display song info

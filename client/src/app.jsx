@@ -19,6 +19,28 @@ const App = () => {
     // Current track info
     const [currentTrack, setCurrentTrack] = useState(null);
 
+    // Store setTimeout reference
+    const [timeoutRef, setTimeoutRef] = useState(null);
+
+    // Function to update the current track state
+    const updateTrackInfo = () => {
+        console.log("Requesting current track...");
+        socket.emit("current-track");
+        socket.on("current-track", trackInfo => {
+            console.log(trackInfo);
+
+            // Update track info
+            setCurrentTrack(trackInfo);
+
+            // BUG: Sometimes multiple successive requests still sent.
+            // Add delay to prevent multiple successive emits
+            const sleepTime = 25 + trackInfo.item.duration_ms - trackInfo.progress_ms;
+            setTimeoutRef(setTimeout(() => {
+                socket.emit("current-track");
+            }, sleepTime));
+        });
+    };
+
     // Component-mount effects
     useEffect(async () => {
         // Fetch login status
@@ -26,12 +48,7 @@ const App = () => {
         setIsLoggedIn(data.isLoggedIn);
 
         if (data.isLoggedIn) {
-            console.log("Requesting current track...");
-            socket.emit("current-track");
-            socket.on("current-track", trackInfo => {
-                console.log(trackInfo);
-                setCurrentTrack(trackInfo);
-            });
+            updateTrackInfo();
         }
     }, []);
 
@@ -49,22 +66,6 @@ const App = () => {
     };
 
     if (isLoggedIn) {
-        // Request information on current song
-        /*
-        socket.emit("current-track");
-        socket.on("current-track", data => {
-            console.log(data);
-            // Update state
-            setCurrentTrack(data);
-
-            // Add slight delay to prevent multiple successive requests
-            let songTime = 50 + Math.ceil(data.item.duration_ms - data.progress_ms);
-            setTimeout(() => {
-                socket.emit("current-track");
-            }, songTime);
-        });
-        */
-
         return (
             <div className="col-2">
                 <TrackSearch 
@@ -74,7 +75,11 @@ const App = () => {
                     tracks={trackQueue}
                     removeFromQueue={removeFromQueue}
                 >
-                    <PlaybackControls currentTrack={currentTrack} />
+                    <PlaybackControls 
+                        socket={socket}
+                        currentTrack={currentTrack}
+                        timeoutRef={timeoutRef}
+                    />
                 </TrackQueue>
             </div>
         );
