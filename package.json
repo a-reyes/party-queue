@@ -27,6 +27,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.8"
+    "request-promise-native": "^1.0.8",
+    "socket.io": "^2.3.0"
   }
 }
