@@ -123,6 +123,51 @@ app.get("/playlists", async (req, res) => {
     }
 });
 
+// Return the tracklist of a specified playlist
+app.get("/playlist-tracks", async (req, res) => {
+    if (!req.query.id) {
+        res.status(400).json({
+            msg: "Missing query parameter 'id'"
+        });
+        return;
+    }
+
+    console.log("Retrieving playlist track list");
+    const accessToken = req.session.accessToken;
+    const reqOptions = {
+        uri: `https://api.spotify.com/v1/playlists/${req.query.id}/tracks`,
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        },
+        json: true,
+        resolveWithFullResponse: true
+    };
+
+    let response;
+    try {
+        response = await request.get(reqOptions);
+    } catch (err) {
+        // TODO: implement
+        console.log(err);
+        res.sendStatus(500);
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 200:
+            // Send data to client
+            res.status(200).json(body);
+            break;
+        default:
+            // 403 - Forbidden (not authorized)
+            // TODO: Implement
+            console.log(response.statusCode);
+            console.log(body);
+            res.status(response.statusCode).json(body);
+    }
+});
+
 // Serve react app on all other non-specified routes
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, BUILD_PATH, "index.html"));
