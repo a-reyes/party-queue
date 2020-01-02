@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 
 import TrackSearch from "./components/track-search/track-search";
 import TrackQueue from "./components/track-queue/track-queue";
@@ -7,6 +7,14 @@ import PlaybackControls from "./components/playback-controls/playback-controls";
 import "./temp-styles.css";
 
 const App = () => {
+
+    // User log-in status
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+        fetch("/login/status")
+        .then(res => res.json())
+        .then(data => setIsLoggedIn(data.isLoggedIn));
+    }, []);
 
     // Array of songs
     const [trackQueue, setTrackQueue] = useState([]);
@@ -21,19 +29,27 @@ const App = () => {
         setTrackQueue(trackQueue.filter(track => track.id != trackId));
     };
 
-    return (
-        <div className="col-2">
-            <TrackSearch 
-                addToQueue={addToQueue}
-            />
-            <TrackQueue 
-                tracks={trackQueue}
-                removeFromQueue={removeFromQueue}
-            >
-                <PlaybackControls/>
-            </TrackQueue>
-        </div>
-    );
+    if (isLoggedIn) {
+        return (
+            <div className="col-2">
+                <TrackSearch 
+                    addToQueue={addToQueue}
+                />
+                <TrackQueue 
+                    tracks={trackQueue}
+                    removeFromQueue={removeFromQueue}
+                >
+                    <PlaybackControls/>
+                </TrackQueue>
+            </div>
+        );
+    } else {
+        return (
+            <div>
+                <a href="/login">Connect Spotify</a>
+            </div>
+        );
+    }
 
 };
 
