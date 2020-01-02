@@ -4,6 +4,11 @@ const session = require("express-session");
 const request = require("request-promise-native");
 const path = require("path");
 const querystring = require("querystring");
+
+// Routers
+const playbackRouter = require("./routes/playback-router");
+
+// Other
 const config = require("./config");
 
 // Constants
@@ -20,6 +25,9 @@ app.use(session({  // Setup session data
     }
 }));
 
+// Mount routers
+app.use("/playback", playbackRouter);
+
 // Allow the user to authorize their spotify account
 app.get("/login", (req, res) => {
     // TODO: implement dynamic state
@@ -34,7 +42,7 @@ app.get("/login", (req, res) => {
         response_type: "code",
         redirect_uri: config.REDIRECT_URI,
         state: STATE,
-        scope: "user-read-private user-read-email"
+        scope: "user-read-private user-read-email user-read-playback-state user-modify-playback-state" 
     });
 
     // Redirect to spotify
@@ -91,27 +99,7 @@ app.get("/callback", async (req, res) => {
             req.session.accessToken = accessToken;
             req.session.refreshToken = refreshToken;
 
-            const reqData = {
-                uri: "https://api.spotify.com/v1/me",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                },
-                json: true
-            };
-
-            let resBody;
-            try {
-                resBody = await request.get(reqData);
-            } catch (err) {
-                // TODO: implement proper error handling
-                console.log(err);
-                res.send("Error: an error occurred.");
-                return;
-            }
-
-            // TODO: change route
-            console.log(resBody);
-            res.json(resBody);
+            res.redirect("/")
 
         } else {
             // TODO: handle alternate status codes
