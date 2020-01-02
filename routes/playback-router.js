@@ -29,7 +29,6 @@ router.get("/current-track", async (req, res) => {
     const body = response.body;
     switch (response.statusCode) {
         case 200:
-            console.log(body);
             res.status(200).json(body);
             break;
         case 204:

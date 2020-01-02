@@ -75,7 +75,7 @@ app.get("/search", async (req, res) => {
 
     if (response.statusCode === 200) {
         const body = response.body;
-        res.json(body);
+        res.status(200).json(body);
     } else {
         // TODO: implement this
         console.log(response);
@@ -96,6 +96,68 @@ const io = socketIo(server);
 io.use(sharedSession(session, {
     autoSave: true
 }));
+
+// Setup socket events
+io.on("connect", socket => {
+    console.log("A user connected");
+
+    socket.on("current-track", async () => {
+        console.log(`${socket.id} is requesting info on current song.`);
+        const userSession = socket.handshake.session;
+        if (!userSession.isLoggedIn) {
+            // User isn't logged in
+            socket.emit("not-authorized", {
+                msg: "Please connect your Spotify acount first."
+            });
+            return;
+        }
+
+        // Request track info from Spotify
+        const accessToken = userSession.accessToken;
+        const reqOptions = {
+            uri: "https://api.spotify.com/v1/me/player/currently-playing",
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+            json: true,
+            resolveWithFullResponse: true
+        };
+
+        let response;
+        try {
+            response = await request.get(reqOptions);
+        } catch (err) {
+            console.log(err);
+            socket.emit("server-error", {
+                msg: err.toString() // TODO: Remove
+            });
+            return;
+        }
+
+        const body = response.body;
+        switch (response.statusCode) {
+            case 200:
+                // Send data to client
+                socket.emit("current-track", body);
+                break;
+            case 204:
+                // No track is currently playing
+                // TODO: Implement
+                console.log(body);
+                break;
+            default:
+                // TODO: Implement 404 (no devices) or 403 (not premium)
+                console.log(response.statusCode);
+                console.log(body);
+        }
+
+    });
+
+    socket.on("disconnect", () => {
+        console.log("A user disconnected.");
+    });
+
+});
 
 // Start server
 server.listen(config.PORT, () => console.log(`Listening on Port ${config.PORT}...`));
