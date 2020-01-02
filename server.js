@@ -1,5 +1,7 @@
 // Modules
+const http = require("http");
 const express = require("express");
+const socketIo = require("socket.io");
 const session = require("express-session");
 const request = require("request-promise-native");
 const path = require("path");
@@ -15,8 +17,9 @@ const config = require("./config");
 const BUILD_PATH = "client/build";
 const SESSION_LENGTH = 3600 * 1000 * 1;  // 1 hour
 
-// Initialize express app
+// Initialize express app and server
 const app = express();
+const server = http.createServer(app);
 app.use(express.static(path.join(__dirname, BUILD_PATH)));  // Set static folder
 app.use(session({  // Setup session data
     secret: "some-secret",
@@ -80,6 +83,8 @@ app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, BUILD_PATH, "index.html"));
 });
 
+// Setup socket.io
+const io = socketIo(server);
+
 // Start server
-app.listen(config.PORT);
-console.log(`Listening on Port ${config.PORT}...`);
+server.listen(config.PORT, () => console.log(`Listening on Port ${config.PORT}...`));
