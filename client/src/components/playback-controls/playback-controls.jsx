@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const PlaybackControls = props => {
+const PlaybackControls = ({ currentTrack }) => {
     // TODO: Use server requests to verify
     const [isPlaying, setIsPlaying] = useState(true);
     const playPause = () => {
@@ -22,31 +22,16 @@ const PlaybackControls = props => {
         });
     }
 
-    // Store information on the currently playing track
-    const [currentTrack, setCurrentTrack] = useState(null);
-    const getCurrentTrack = () => {
-        fetch("/playback/current-track")
-        .then(res => res.json())
-        .then(data => {
-            setCurrentTrack(data);
-        });
-    };
-
-    // Get track info on mount
-    useEffect(() => {
-        getCurrentTrack();
-    }, []);
-
     // Play the previous song
     const playPrevious = () => {
         fetch("/playback/previous")
-        .then(res => getCurrentTrack());
+        // .then(res => getCurrentTrack());
     };
 
     // Play the next song
     const playNext = () => {
         fetch("/playback/next")
-        .then(res => getCurrentTrack());
+        // .then(res => getCurrentTrack());
     }
 
     // Display song info
