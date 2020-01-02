@@ -4,22 +4,14 @@ const PlaybackControls = ({ socket, currentTrack, timeoutRef }) => {
     // TODO: Use server requests to verify
     const [isPlaying, setIsPlaying] = useState(true);
     const playPause = () => {
-        let reqRoute;
         if (isPlaying) {
-            reqRoute = "/playback/pause";
+            socket.emit("pause-playback");
+            clearTimeout(timeoutRef);
+            setIsPlaying(false);
         } else {
-            reqRoute = "/playback/resume";
+            socket.emit("resume-playback");
+            setIsPlaying(true);
         }
-
-        fetch(reqRoute)
-        .then(res => {
-            if (res.ok) {
-                setIsPlaying(!isPlaying);
-            } else {
-                alert("An error occurred.");
-                console.log(res);
-            }
-        });
     }
 
     // Play the previous song
