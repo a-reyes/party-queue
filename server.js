@@ -136,10 +136,6 @@ const updateSong = async socket => {
         case 200:
             // Send data to client
             socket.emit("current-track", body);
-
-            // Add slight delay to prevent multiple sequential emits
-            const sleepTime = 25 + body.item.duration_ms - body.progress_ms;
-            setTimeout(() => updateSong(socket), sleepTime);
             break;
         case 204:
             // No track is currently playing
