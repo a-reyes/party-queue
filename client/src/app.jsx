@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
 
 import TrackSearch from "./components/track-search/track-search";
@@ -32,11 +32,10 @@ const App = () => {
             // Update track info
             setCurrentTrack(trackInfo);
 
-            // BUG: Sometimes multiple successive requests still sent.
-            // Add delay to prevent multiple successive emits
-            const sleepTime = 25 + trackInfo.item.duration_ms - trackInfo.progress_ms;
+            // Set timeout for remainder of song duration
+            const sleepTime = trackInfo.item.duration_ms - trackInfo.progress_ms;
             setTimeoutRef(setTimeout(() => {
-                socket.emit("current-track");
+                playNext(false);
             }, sleepTime));
         });
     };
@@ -76,6 +75,62 @@ const App = () => {
 
     // Array of songs from the selected playlist, and played songs from trackQueue
     const [basePlaylist, setBasePlaylist] = useState([]);
+
+    // Set and update a ref to the track queue
+    // Functions like playNext depend on this ref to avoid stale closures (old state)
+    const trackQueueRef = useRef(trackQueue);
+    useEffect(() => {
+        trackQueueRef.current = trackQueue;
+    }, [trackQueue]);
+
+    // Set and update a ref to the base playlist
+    const playlistRef = useRef(basePlaylist);
+    useEffect(() => {
+        playlistRef.current = basePlaylist;
+    }, [basePlaylist]);
+
+    // Play the next song
+    // Param: forceClear - boolean - Whether the timeout function should be force-reset
+    // (If the song playback won't be interrupted, pass false.)
+    const playNext = (forceClear = true) => {
+        
+        console.log("Trying to play the next track...");
+
+        // A ref to the queue and playlist must be used to avoid stale closures
+        const playlist = playlistRef.current;
+        const queue = trackQueueRef.current;
+
+        // Clear old timeout
+        if (forceClear) {
+            clearTimeout(timeoutRef);
+        }
+
+        // Request next track
+        // Determine which track to play next
+        // TODO/BUG: Track objects may differ depending on what Spotify route they come from
+        let nextSong;
+        let newPlaylist = playlist.slice();
+        if (queue.length > 0) {
+            // Get first song in the queue
+            nextSong = queue[0];
+            removeFromQueue(nextSong.id);
+
+            // Add the song to the back of the base playlist
+            newPlaylist.push(nextSong);
+        } else {
+            // Get the first song in the playlist
+            nextSong = newPlaylist[0];
+
+            // Move track to back
+            newPlaylist.push(newPlaylist.shift());
+        }
+
+        // Emit event to the server
+        socket.emit("play-track", nextSong.uri);
+
+        // Update the playlist
+        setBasePlaylist(newPlaylist);
+    };
 
     if (isLoggedIn) {
         if (basePlaylist.length < 1) {
@@ -118,6 +173,7 @@ const App = () => {
                             trackQueue={trackQueue}
                             timeoutRef={timeoutRef}
                             removeFromQueue={removeFromQueue}
+                            playNext={playNext}
                             setBasePlaylist={setBasePlaylist}
                         />
                     </TrackQueue>
