@@ -48,11 +48,15 @@ const App = () => {
         setIsLoggedIn(data.isLoggedIn);
 
         if (data.isLoggedIn) {
-            updateTrackInfo();
+            // Retrieve the user's playlist data
+            const playlistData = await (await fetch("/playlists")).json();
+            setUserPlaylists(playlistData.items);
+
+            updateTrackInfo(); // Maybe move to when base playlist is set
         }
     }, []);
 
-    // Array of songs
+    // Array of user-selectedsongs
     const [trackQueue, setTrackQueue] = useState([]);
 
     // Append a new song to the end of the queue
@@ -65,25 +69,61 @@ const App = () => {
         setTrackQueue(trackQueue.filter(track => track.id != trackId));
     };
 
+    // Array to hold information on a user's personal playlists
+    const [userPlaylists, setUserPlaylists] = useState([]);
+
+    // Array of songs from the selected playlist, and played songs from trackQueue
+    const [basePlaylist, setBasePlaylist] = useState([]);
+
     if (isLoggedIn) {
-        return (
-            <div className="col-2">
-                <TrackSearch 
-                    addToQueue={addToQueue}
-                />
-                <TrackQueue 
-                    tracks={trackQueue}
-                    removeFromQueue={removeFromQueue}
-                >
-                    <PlaybackControls 
-                        socket={socket}
-                        currentTrack={currentTrack}
-                        timeoutRef={timeoutRef}
+        if (basePlaylist.length < 1) {
+            // Base playlist has not been selected
+            return (
+                <div>
+                    <h2>Please select a base playlist:</h2>
+                    <ul>
+                        {userPlaylists.map(playlist => (
+                            <li key={playlist.id}>
+                                {playlist.name} - {playlist.owner.display_name}
+                                <button 
+                                    onClick={async () => {
+                                        const data = await (await fetch(`/playlist-tracks?id=${playlist.id}`)).json();
+                                        setBasePlaylist(data.items.map(item => item.track));
+                                    }}
+                                >
+                                    Select
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        } else {
+            // Set-up complete, render main application
+            return (
+                <div className="col-2">
+                    <TrackSearch 
+                        addToQueue={addToQueue}
                     />
-                </TrackQueue>
-            </div>
-        );
+                    <TrackQueue 
+                        tracks={trackQueue}
+                        removeFromQueue={removeFromQueue}
+                    >
+                        <PlaybackControls 
+                            socket={socket}
+                            currentTrack={currentTrack}
+                            basePlaylist={basePlaylist}
+                            trackQueue={trackQueue}
+                            timeoutRef={timeoutRef}
+                            removeFromQueue={removeFromQueue}
+                            setBasePlaylist={setBasePlaylist}
+                        />
+                    </TrackQueue>
+                </div>
+            );
+        }
     } else {
+        // User needs to be authenticated
         return (
             <div>
                 <a href="/login">Connect Spotify</a>

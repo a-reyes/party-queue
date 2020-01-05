@@ -84,6 +84,90 @@ app.get("/search", async (req, res) => {
 
 });
 
+// Return the user's playlists
+app.get("/playlists", async (req, res) => {
+    console.log("Finding user playlists");
+
+    // Request a list of user playlists from Spotify
+    const accessToken = req.session.accessToken;
+    const reqOptions = {
+        uri: "https://api.spotify.com/v1/me/playlists?limit=50",
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        },
+        json: true,
+        resolveWithFullResponse: true
+    };
+
+    let response;
+    try {
+        response = await request.get(reqOptions);
+    } catch (err) {
+        // TODO: implement
+        console.log(err);
+        res.sendStatus(500);
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 200:
+            // Send data to client
+            res.status(200).json(body);
+            break;
+        default:
+            // TODO: Implement
+            console.log(response.statusCode);
+            console.log(body);
+            res.status(response.statusCode).json(body);
+    }
+});
+
+// Return the tracklist of a specified playlist
+app.get("/playlist-tracks", async (req, res) => {
+    if (!req.query.id) {
+        res.status(400).json({
+            msg: "Missing query parameter 'id'"
+        });
+        return;
+    }
+
+    console.log("Retrieving playlist track list");
+    const accessToken = req.session.accessToken;
+    const reqOptions = {
+        uri: `https://api.spotify.com/v1/playlists/${req.query.id}/tracks`,
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        },
+        json: true,
+        resolveWithFullResponse: true
+    };
+
+    let response;
+    try {
+        response = await request.get(reqOptions);
+    } catch (err) {
+        // TODO: implement
+        console.log(err);
+        res.sendStatus(500);
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 200:
+            // Send data to client
+            res.status(200).json(body);
+            break;
+        default:
+            // 403 - Forbidden (not authorized)
+            // TODO: Implement
+            console.log(response.statusCode);
+            console.log(body);
+            res.status(response.statusCode).json(body);
+    }
+});
+
 // Serve react app on all other non-specified routes
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, BUILD_PATH, "index.html"));
@@ -154,8 +238,11 @@ const updateSong = async socket => {
 io.on("connect", socket => {
     console.log("A user connected");
 
+    // Send clients information on the current song
     socket.on("current-track", () => updateSong(socket));
 
+    // Play the previous track on a user's device
+    // DEPRECATED: using "play-track" instead
     socket.on("previous-track", async () => {
         console.log("Getting previous track...");
 
@@ -192,6 +279,8 @@ io.on("connect", socket => {
         }
     });
 
+    // Play the next track on a user's device
+    // DEPRECATED: using "play-track" instead
     socket.on("next-track", async () => {
         console.log("Getting next track...");
 
@@ -228,6 +317,7 @@ io.on("connect", socket => {
         }
     });
 
+    // Pause playback on the user's device
     socket.on("pause-playback", async () => {
         // TODO: Check if song already paused
         console.log("Pausing playback...");
@@ -264,6 +354,7 @@ io.on("connect", socket => {
         }
     });
 
+    // Resume playback on the user's device
     socket.on("resume-playback", async () => {
         // TODO: Check if song already playing
         console.log("Resuming playback...");
@@ -291,6 +382,47 @@ io.on("connect", socket => {
         switch (response.statusCode) {
             case 204:
                 console.log("Song resumed successfully...");
+                updateSong(socket);
+                break;
+            default:
+                // TODO: Implement 404 (no devices) or 403 (not premium)
+                console.log(response.statusCode);
+                console.log(body);
+        }
+    });
+
+    // Play a specified song (by URI)
+    // TODO: Merge with resume-playback (identical other than request body)
+    socket.on("play-track", async songUri => {
+        console.log(`Attempting to play ${songUri}`);
+
+        const userSession = socket.handshake.session;
+        const reqOptions = {
+            uri: "https://api.spotify.com/v1/me/player/play",
+            headers: {
+                Authorization: `Bearer ${userSession.accessToken}`
+            },
+            body: {
+                uris: [songUri]
+            },
+            json: true,
+            resolveWithFullResponse: true
+        };
+
+        try {
+            response = await request.put(reqOptions);
+        } catch (err) {
+            console.log(err);
+            socket.emit("server-error", {
+                msg: err.toString() // TODO: Remove
+            });
+            return;
+        }
+
+        const body = response.body;
+        switch (response.statusCode) {
+            case 204:
+                console.log("Song played successfully...");
                 updateSong(socket);
                 break;
             default:
