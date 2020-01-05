@@ -61,12 +61,14 @@ const App = () => {
 
     // Append a new song to the end of the queue
     const addToQueue = track => {
-        setTrackQueue(trackQueue.concat(track));
+        setTrackQueue(prevQueue => [...prevQueue, track]);
     };
 
     // Remove an song from the queue by track id
     const removeFromQueue = trackId => {
-        setTrackQueue(trackQueue.filter(track => track.id != trackId));
+        setTrackQueue(prevQueue => {
+            return prevQueue.filter(track => track.id != trackId)
+        });
     };
 
     // Array to hold information on a user's personal playlists
