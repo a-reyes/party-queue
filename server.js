@@ -384,6 +384,46 @@ io.on("connect", socket => {
         }
     });
 
+    // TODO: Merge with resume-playback (identical other than request body)
+    socket.on("play-track", async songUri => {
+        console.log(`Attempting to play ${songUri}`);
+
+        const userSession = socket.handshake.session;
+        const reqOptions = {
+            uri: "https://api.spotify.com/v1/me/player/play",
+            headers: {
+                Authorization: `Bearer ${userSession.accessToken}`
+            },
+            body: {
+                uris: [songUri]
+            },
+            json: true,
+            resolveWithFullResponse: true
+        };
+
+        try {
+            response = await request.put(reqOptions);
+        } catch (err) {
+            console.log(err);
+            socket.emit("server-error", {
+                msg: err.toString() // TODO: Remove
+            });
+            return;
+        }
+
+        const body = response.body;
+        switch (response.statusCode) {
+            case 204:
+                console.log("Song played successfully...");
+                updateSong(socket);
+                break;
+            default:
+                // TODO: Implement 404 (no devices) or 403 (not premium)
+                console.log(response.statusCode);
+                console.log(body);
+        }
+    });
+
     socket.on("disconnect", () => {
         console.log("A user disconnected.");
     });
