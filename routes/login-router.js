@@ -108,7 +108,8 @@ router.get("/status", (req, res) => {
     }
 
     res.status(200).json({
-        isLoggedIn: isLoggedIn
+        isLoggedIn: isLoggedIn,
+        isAdmin: req.session.isAdmin === true ? true : false
     });
 });
 

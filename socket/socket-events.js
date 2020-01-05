@@ -1,5 +1,8 @@
 const request = require("request-promise-native");
 
+// Temporary
+let connectedUsers = [];
+
 // Send clients info on currently playing tracks
 const updateSong = async socket => {
     console.log(`${socket.id} is sending out new song info.`);
@@ -57,6 +60,19 @@ const updateSong = async socket => {
 // Set up socket events on connection
 const handleEvents = socket => {
     console.log("A user connected");
+
+    connectedUsers.push(socket);
+    console.log(`There are ${connectedUsers.length} users connected.`);
+    if (connectedUsers.length === 1) {
+        console.log("Congrats ADMIN, you are the first.");
+        socket.handshake.session.isAdmin = true;
+    } else {
+        console.log("You are just a spectator...");
+        socket.handshake.session.isAdmin = false;
+    }
+
+    // Update session with the isAdmin property
+    socket.handshake.session.save();
 
     // Send clients information on the current song
     socket.on("current-track", () => updateSong(socket));
@@ -254,8 +270,8 @@ const handleEvents = socket => {
 
     socket.on("disconnect", () => {
         console.log("A user disconnected.");
+        connectedUsers = connectedUsers.filter(s => s.id != socket.id);
     });
-
 
 };
 

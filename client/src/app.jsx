@@ -16,6 +16,9 @@ const App = () => {
     // User log-in status
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    // User priveledges
+    const [isAdmin, setIsAdmin] = useState(false);
+
     // Current track info
     const [currentTrack, setCurrentTrack] = useState(null);
 
@@ -45,8 +48,9 @@ const App = () => {
         // Fetch login status
         const data = await (await fetch("/login/status")).json();
         setIsLoggedIn(data.isLoggedIn);
+        setIsAdmin(data.isAdmin);
 
-        if (data.isLoggedIn) {
+        if (data.isLoggedIn && data.isAdmin) {
             // Retrieve the user's playlist data
             const playlistData = await (await fetch("/playlists")).json();
             setUserPlaylists(playlistData.items);
@@ -133,7 +137,7 @@ const App = () => {
     };
 
     if (isLoggedIn) {
-        if (basePlaylist.length < 1) {
+        if (isAdmin && basePlaylist.length < 1) {
             // Base playlist has not been selected
             return (
                 <div>
