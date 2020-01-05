@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
-const PlaybackControls = ({ socket, currentTrack, timeoutRef }) => {
+const PlaybackControls = ({ socket, currentTrack, basePlaylist,
+                            trackQueue, timeoutRef, removeFromQueue,
+                            setBasePlaylist }) => {
     // TODO: Use server requests to verify
     const [isPlaying, setIsPlaying] = useState(true);
     const playPause = () => {
@@ -20,6 +22,8 @@ const PlaybackControls = ({ socket, currentTrack, timeoutRef }) => {
 
         // Clear old timeout
         clearTimeout(timeoutRef);
+
+        // Request previous track
         socket.emit("previous-track");
     };
 
@@ -29,7 +33,27 @@ const PlaybackControls = ({ socket, currentTrack, timeoutRef }) => {
 
         // Clear old timeout
         clearTimeout(timeoutRef);
-        socket.emit("next-track");
+
+        // Request next track
+        // Determine which track to play next
+        // TODO/BUG: Track objects may differ depending on what Spotify route they come from
+        let nextSong;
+        if (trackQueue.length > 0) {
+            nextSong = trackQueue[0];
+            removeFromQueue(nextSong.id);
+
+            // Add the song to the back of the base playlist
+            setBasePlaylist(basePlaylist.concat(nextSong));
+        } else {
+            nextSong = basePlaylist[0];
+
+            // Move track to back
+            const newPlaylist = basePlaylist.slice();
+            newPlaylist.push(newPlaylist.shift());
+            setBasePlaylist(newPlaylist);
+        }
+
+        socket.emit("play-track", nextSong.uri);
     }
 
     // Display song info

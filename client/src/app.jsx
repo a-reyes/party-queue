@@ -88,7 +88,7 @@ const App = () => {
                                 <button 
                                     onClick={async () => {
                                         const data = await (await fetch(`/playlist-tracks?id=${playlist.id}`)).json();
-                                        setBasePlaylist(data.items);
+                                        setBasePlaylist(data.items.map(item => item.track));
                                     }}
                                 >
                                     Select
@@ -112,7 +112,11 @@ const App = () => {
                         <PlaybackControls 
                             socket={socket}
                             currentTrack={currentTrack}
+                            basePlaylist={basePlaylist}
+                            trackQueue={trackQueue}
                             timeoutRef={timeoutRef}
+                            removeFromQueue={removeFromQueue}
+                            setBasePlaylist={setBasePlaylist}
                         />
                     </TrackQueue>
                 </div>
