@@ -238,8 +238,11 @@ const updateSong = async socket => {
 io.on("connect", socket => {
     console.log("A user connected");
 
+    // Send clients information on the current song
     socket.on("current-track", () => updateSong(socket));
 
+    // Play the previous track on a user's device
+    // DEPRECATED: using "play-track" instead
     socket.on("previous-track", async () => {
         console.log("Getting previous track...");
 
@@ -276,6 +279,8 @@ io.on("connect", socket => {
         }
     });
 
+    // Play the next track on a user's device
+    // DEPRECATED: using "play-track" instead
     socket.on("next-track", async () => {
         console.log("Getting next track...");
 
@@ -312,6 +317,7 @@ io.on("connect", socket => {
         }
     });
 
+    // Pause playback on the user's device
     socket.on("pause-playback", async () => {
         // TODO: Check if song already paused
         console.log("Pausing playback...");
@@ -348,6 +354,7 @@ io.on("connect", socket => {
         }
     });
 
+    // Resume playback on the user's device
     socket.on("resume-playback", async () => {
         // TODO: Check if song already playing
         console.log("Resuming playback...");
@@ -384,6 +391,7 @@ io.on("connect", socket => {
         }
     });
 
+    // Play a specified song (by URI)
     // TODO: Merge with resume-playback (identical other than request body)
     socket.on("play-track", async songUri => {
         console.log(`Attempting to play ${songUri}`);
