@@ -23,8 +23,19 @@ const PlaybackControls = ({ socket, currentTrack, basePlaylist,
         // Clear old timeout
         clearTimeout(timeoutRef);
 
-        // Request previous track
-        socket.emit("previous-track");
+        // Move the last element to the front of the list
+        const newPlaylist = basePlaylist.slice();
+        newPlaylist.unshift(newPlaylist.pop());
+
+        // Get the last element
+        const nextSong = newPlaylist[newPlaylist.length - 1];
+
+        // Send song to server
+        socket.emit("play-track", nextSong.uri);
+
+        // Update the playlist
+        setBasePlaylist(newPlaylist);
+
     };
 
     // Play the next song
