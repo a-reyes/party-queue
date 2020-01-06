@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const PlaybackControls = ({ socket, currentTrack, basePlaylist,
+const PlaybackControls = ({ socket, basePlaylist,
                             timeoutRef, playNext, setBasePlaylist }) => {
     // TODO: Use server requests to verify
     const [isPlaying, setIsPlaying] = useState(true);
@@ -37,18 +37,8 @@ const PlaybackControls = ({ socket, currentTrack, basePlaylist,
 
     };
 
-    // Display song info
-    let albumImg;
-    let songTitle;
-    if (currentTrack) {
-        albumImg = <img src={currentTrack.item.album.images[1].url} />;
-        songTitle = <div>{currentTrack.item.name} - {currentTrack.item.artists[0].name} {currentTrack.item.explicit ? "[Explicit]" : ""}</div>;
-    }
-
     return (
         <div>
-            {albumImg}
-            {songTitle}
             <button onClick={playPrevious}>Previous</button>
             <button onClick={playPause}>
                 {isPlaying ? "Pause" : "Play"}

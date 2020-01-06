@@ -3,6 +3,7 @@ import socketIOClient from "socket.io-client";
 
 import TrackSearch from "./components/track-search/track-search";
 import TrackQueue from "./components/track-queue/track-queue";
+import PlaybackDisplay from "./components/playback-display/playback-display";
 import PlaybackControls from "./components/playback-controls/playback-controls";
 
 import "./temp-styles.css";
@@ -15,6 +16,9 @@ const App = () => {
 
     // User log-in status
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // User priveledges
+    const [isAdmin, setIsAdmin] = useState(false);
 
     // Current track info
     const [currentTrack, setCurrentTrack] = useState(null);
@@ -45,11 +49,15 @@ const App = () => {
         // Fetch login status
         const data = await (await fetch("/login/status")).json();
         setIsLoggedIn(data.isLoggedIn);
+        setIsAdmin(data.isAdmin);
 
         if (data.isLoggedIn) {
-            // Retrieve the user's playlist data
-            const playlistData = await (await fetch("/playlists")).json();
-            setUserPlaylists(playlistData.items);
+
+            if (data.isAdmin) {
+                // Retrieve the user's playlist data
+                const playlistData = await (await fetch("/playlists")).json();
+                setUserPlaylists(playlistData.items);
+            }
 
             updateTrackInfo(); // Maybe move to when base playlist is set
         }
@@ -133,7 +141,7 @@ const App = () => {
     };
 
     if (isLoggedIn) {
-        if (basePlaylist.length < 1) {
+        if (isAdmin && basePlaylist.length < 1) {
             // Base playlist has not been selected
             return (
                 <div>
@@ -166,16 +174,25 @@ const App = () => {
                         tracks={trackQueue}
                         removeFromQueue={removeFromQueue}
                     >
-                        <PlaybackControls 
-                            socket={socket}
+                        <PlaybackDisplay 
                             currentTrack={currentTrack}
-                            basePlaylist={basePlaylist}
-                            trackQueue={trackQueue}
-                            timeoutRef={timeoutRef}
-                            removeFromQueue={removeFromQueue}
-                            playNext={playNext}
-                            setBasePlaylist={setBasePlaylist}
                         />
+                        {(() => {
+                            if (isAdmin) {
+                                return (
+                                    <PlaybackControls 
+                                        socket={socket}
+                                        currentTrack={currentTrack}
+                                        basePlaylist={basePlaylist}
+                                        trackQueue={trackQueue}
+                                        timeoutRef={timeoutRef}
+                                        removeFromQueue={removeFromQueue}
+                                        playNext={playNext}
+                                        setBasePlaylist={setBasePlaylist}
+                                    />
+                                )
+                            }
+                        })()}
                     </TrackQueue>
                 </div>
             );
