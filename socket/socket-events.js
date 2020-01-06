@@ -4,7 +4,14 @@ const request = require("request-promise-native");
 let connectedUsers = [];
 let admin;
 
-// Send clients info on currently playing tracks
+/**
+ * Requests track information from Spotify, and emits it to the clients.
+ * Information is given about the user's currently playing song on their
+ * Spotify account. Only a user (socket) with admin priveledges should
+ * be passed to this method.
+ * @param {SocketIO.Server} io 
+ * @param {SocketIO.Socket} socket - An admin user's socket
+ */
 const updateSong = async (io, socket) => {
     console.log(`${socket.id} is sending out new song info.`);
     const userSession = socket.handshake.session;
@@ -68,7 +75,6 @@ const updateSong = async (io, socket) => {
  * Only a user (socket) with admin priveledges should
  * be passed to this method.
  * @param {SocketIO.Server} io 
- * @param {SocketIO.Socket} socket 
  * @param {SocketIO.Socket} socket - An admin user's socket
  * @param {string} songUri - The URI of the song on Spotify.
  */
