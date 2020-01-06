@@ -121,9 +121,16 @@ const playTrack = async (io, socket, songUri) => {
     }
 };
 
-// Set up socket events on connection
+/**
+ * Set up emit event handlers for the io server.
+ * @param {SocketIO.Server} io 
+ */
 const handleEvents = io => {
 
+    /**
+     * Handle emit events for individual sockets, once connected.
+     * @param {SocketIO.Socket} - A newly connected socket.
+     */
     io.on("connect", socket => {
         console.log("A user connected");
 
