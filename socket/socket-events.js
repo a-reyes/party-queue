@@ -61,6 +61,60 @@ const updateSong = async (io, socket) => {
 
 };
 
+/**
+ * Sends a request to Spotify to play a track on the user's behalf.
+ * If songURI is specified, this function will attempt to play that song, else
+ * Spotify will attempt to resume paused playback on the user's device.
+ * Only a user (socket) with admin priveledges should
+ * be passed to this method.
+ * @param {SocketIO.Server} io 
+ * @param {SocketIO.Socket} socket 
+ * @param {SocketIO.Socket} socket - An admin user's socket
+ * @param {string} songUri - The URI of the song on Spotify.
+ */
+const playTrack = async (io, socket, songUri) => {
+    const userSession = socket.handshake.session;
+    const reqOptions = {
+        uri: "https://api.spotify.com/v1/me/player/play",
+        headers: {
+            Authorization: `Bearer ${userSession.accessToken}`
+        },
+        json: true,
+        resolveWithFullResponse: true
+    };
+
+    // If a song URI is specified, include it in the body request
+    if (songUri) {
+        console.log(`Attempting to play ${songUri}`);
+        reqOptions.body = {
+            uris: [songUri]
+        }
+    }
+
+    // Send request
+    try {
+        response = await request.put(reqOptions);
+    } catch (err) {
+        console.log(err);
+        socket.emit("server-error", {
+            msg: err.toString() // TODO: Remove
+        });
+        return;
+    }
+
+    const body = response.body;
+    switch (response.statusCode) {
+        case 204:
+            console.log("Song played successfully...");
+            updateSong(io, socket);
+            break;
+        default:
+            // TODO: Implement 404 (no devices) or 403 (not premium)
+            console.log(response.statusCode);
+            console.log(body);
+    }
+};
+
 // Set up socket events on connection
 const handleEvents = io => {
 
@@ -132,82 +186,10 @@ const handleEvents = io => {
         });
 
         // Resume playback on the user's device
-        socket.on("resume-playback", async () => {
-            // TODO: Check if song already playing
-            console.log("Resuming playback...");
-
-            const userSession = socket.handshake.session;
-            const reqOptions = {
-                uri: "https://api.spotify.com/v1/me/player/play",
-                headers: {
-                    Authorization: `Bearer ${userSession.accessToken}`
-                },
-                resolveWithFullResponse: true
-            };
-
-            try {
-                response = await request.put(reqOptions);
-            } catch (err) {
-                console.log(err);
-                socket.emit("server-error", {
-                    msg: err.toString() // TODO: Remove
-                });
-                return;
-            }
-
-            const body = response.body;
-            switch (response.statusCode) {
-                case 204:
-                    console.log("Song resumed successfully...");
-                    updateSong(io, socket);
-                    break;
-                default:
-                    // TODO: Implement 404 (no devices) or 403 (not premium)
-                    console.log(response.statusCode);
-                    console.log(body);
-            }
-        });
+        socket.on("resume-playback", async () => playTrack(io, socket, null));
 
         // Play a specified song (by URI)
-        // TODO: Merge with resume-playback (identical other than request body)
-        socket.on("play-track", async songUri => {
-            console.log(`Attempting to play ${songUri}`);
-
-            const userSession = socket.handshake.session;
-            const reqOptions = {
-                uri: "https://api.spotify.com/v1/me/player/play",
-                headers: {
-                    Authorization: `Bearer ${userSession.accessToken}`
-                },
-                body: {
-                    uris: [songUri]
-                },
-                json: true,
-                resolveWithFullResponse: true
-            };
-
-            try {
-                response = await request.put(reqOptions);
-            } catch (err) {
-                console.log(err);
-                socket.emit("server-error", {
-                    msg: err.toString() // TODO: Remove
-                });
-                return;
-            }
-
-            const body = response.body;
-            switch (response.statusCode) {
-                case 204:
-                    console.log("Song played successfully...");
-                    updateSong(io, socket);
-                    break;
-                default:
-                    // TODO: Implement 404 (no devices) or 403 (not premium)
-                    console.log(response.statusCode);
-                    console.log(body);
-            }
-        });
+        socket.on("play-track", async songUri => playTrack(io, socket, songUri));
 
         socket.on("disconnect", () => {
             console.log("A user disconnected.");
