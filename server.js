@@ -185,7 +185,7 @@ io.use(sharedSession(session, {
 }));
 
 // Setup socket events
-io.on("connect", socket => handleEvents(socket));
+handleEvents(io);
 
 // Start server
 server.listen(config.PORT, () => console.log(`Listening on Port ${config.PORT}...`));

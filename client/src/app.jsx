@@ -51,10 +51,13 @@ const App = () => {
         setIsLoggedIn(data.isLoggedIn);
         setIsAdmin(data.isAdmin);
 
-        if (data.isLoggedIn && data.isAdmin) {
-            // Retrieve the user's playlist data
-            const playlistData = await (await fetch("/playlists")).json();
-            setUserPlaylists(playlistData.items);
+        if (data.isLoggedIn) {
+
+            if (data.isAdmin) {
+                // Retrieve the user's playlist data
+                const playlistData = await (await fetch("/playlists")).json();
+                setUserPlaylists(playlistData.items);
+            }
 
             updateTrackInfo(); // Maybe move to when base playlist is set
         }
