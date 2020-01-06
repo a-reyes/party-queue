@@ -3,6 +3,7 @@ import socketIOClient from "socket.io-client";
 
 import TrackSearch from "./components/track-search/track-search";
 import TrackQueue from "./components/track-queue/track-queue";
+import PlaybackDisplay from "./components/playback-display/playback-display";
 import PlaybackControls from "./components/playback-controls/playback-controls";
 
 import "./temp-styles.css";
@@ -170,16 +171,25 @@ const App = () => {
                         tracks={trackQueue}
                         removeFromQueue={removeFromQueue}
                     >
-                        <PlaybackControls 
-                            socket={socket}
+                        <PlaybackDisplay 
                             currentTrack={currentTrack}
-                            basePlaylist={basePlaylist}
-                            trackQueue={trackQueue}
-                            timeoutRef={timeoutRef}
-                            removeFromQueue={removeFromQueue}
-                            playNext={playNext}
-                            setBasePlaylist={setBasePlaylist}
                         />
+                        {(() => {
+                            if (isAdmin) {
+                                return (
+                                    <PlaybackControls 
+                                        socket={socket}
+                                        currentTrack={currentTrack}
+                                        basePlaylist={basePlaylist}
+                                        trackQueue={trackQueue}
+                                        timeoutRef={timeoutRef}
+                                        removeFromQueue={removeFromQueue}
+                                        playNext={playNext}
+                                        setBasePlaylist={setBasePlaylist}
+                                    />
+                                )
+                            }
+                        })()}
                     </TrackQueue>
                 </div>
             );
