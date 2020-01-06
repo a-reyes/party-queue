@@ -15,8 +15,17 @@ let admin;
 const updateSong = async (io, socket) => {
     console.log(`${socket.id} is sending out new song info.`);
     const userSession = socket.handshake.session;
+
+    // Check that the request is from an admin
+    if (!socket.isAdmin) {
+        socket.emit("server-error", {
+            msg: "Error: you don't have permission to do that."
+        });
+        return;
+    }
+
+    // Check if the user is logged in
     if (!userSession.isLoggedIn) {
-        // User isn't logged in
         socket.emit("not-authorized", {
             msg: "Please connect your Spotify acount first."
         });
@@ -80,6 +89,15 @@ const updateSong = async (io, socket) => {
  */
 const playTrack = async (io, socket, songUri) => {
     const userSession = socket.handshake.session;
+
+    // Check that the request is from an admin
+    if (!socket.isAdmin) {
+        socket.emit("server-error", {
+            msg: "Error: you don't have permission to do that."
+        });
+        return;
+    }
+
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/play",
         headers: {
@@ -167,6 +185,15 @@ const handleEvents = io => {
             console.log("Pausing playback...");
 
             const userSession = socket.handshake.session;
+
+            // Check that the request is from an admin
+            if (!socket.isAdmin) {
+                socket.emit("server-error", {
+                    msg: "Error: you don't have permission to do that."
+                });
+                return;
+            }
+
             const reqOptions = {
                 uri: "https://api.spotify.com/v1/me/player/pause",
                 headers: {
