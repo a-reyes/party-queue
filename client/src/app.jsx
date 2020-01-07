@@ -19,6 +19,10 @@ const App = () => {
 
     // User priveledges
     const [isAdmin, setIsAdmin] = useState(false);
+    const isAdminRef = useRef(isAdmin);
+    useEffect(() => {
+        isAdminRef.current = isAdmin;
+    }, [isAdmin]);
 
     // Current track info
     const [currentTrack, setCurrentTrack] = useState(null);
@@ -37,6 +41,8 @@ const App = () => {
             setCurrentTrack(trackInfo);
 
             // Set timeout for remainder of song duration
+            // TODO: make only admin have the setTimeout. It will update the song, and the server
+            // will emit the current-track event
             const sleepTime = trackInfo.item.duration_ms - trackInfo.progress_ms;
             setTimeoutRef(setTimeout(() => {
                 playNext(false);
@@ -57,6 +63,12 @@ const App = () => {
                 // Retrieve the user's playlist data
                 const playlistData = await (await fetch("/playlists")).json();
                 setUserPlaylists(playlistData.items);
+
+                // Set up queue listening events (admin exclusive)
+                socket.on("request-queue-add", track => {
+                    console.log("Someone requested to add a song to the queue...");
+                    addToQueue(track);
+                });
             }
 
             updateTrackInfo(); // Maybe move to when base playlist is set
@@ -68,6 +80,13 @@ const App = () => {
 
     // Append a new song to the end of the queue
     const addToQueue = track => {
+        if (!isAdminRef.current) {
+            // Only execute if the current user is not the admin
+            // TODO: Add identifier in case the same track has been added multiple times
+            //    -> To ensure the correct queue index is removed
+            console.log("Requesting to add track....");
+            socket.emit("request-queue-add", track);
+        }
         setTrackQueue(prevQueue => [...prevQueue, track]);
     };
 
