@@ -69,6 +69,12 @@ const App = () => {
                     console.log("Someone requested to add a song to the queue...");
                     addToQueue(track);
                 });
+
+                // TODO: account for multiple instances of the same track in different locations in the queue
+                socket.on("request-queue-remove", trackId => {
+                    console.log("Someone requested to remove their track from the queue...");
+                    removeFromQueue(trackId);
+                });
             }
 
             updateTrackInfo(); // Maybe move to when base playlist is set
@@ -92,6 +98,14 @@ const App = () => {
 
     // Remove an song from the queue by track id
     const removeFromQueue = trackId => {
+        if (!isAdminRef.current) {
+            // Only execute if the user is not the admin
+            // TODO: add identifier in case the track appears multiple times in the queue.
+            //    -> To ensure the correct one is removed.
+            console.log("Requesting to remove track...");
+            socket.emit("request-queue-remove", trackId);
+        }
+
         setTrackQueue(prevQueue => {
             return prevQueue.filter(track => track.id != trackId)
         });
