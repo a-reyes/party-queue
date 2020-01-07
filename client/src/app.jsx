@@ -19,6 +19,10 @@ const App = () => {
 
     // User priveledges
     const [isAdmin, setIsAdmin] = useState(false);
+    const isAdminRef = useRef(isAdmin);
+    useEffect(() => {
+        isAdminRef.current = isAdmin;
+    }, [isAdmin]);
 
     // Current track info
     const [currentTrack, setCurrentTrack] = useState(null);
@@ -36,13 +40,49 @@ const App = () => {
             // Update track info
             setCurrentTrack(trackInfo);
 
-            // Set timeout for remainder of song duration
-            const sleepTime = trackInfo.item.duration_ms - trackInfo.progress_ms;
-            setTimeoutRef(setTimeout(() => {
-                playNext(false);
-            }, sleepTime));
+            if (isAdminRef.current) {
+                // Set timeout for remainder of song duration
+                // TODO: make only admin have the setTimeout. It will update the song, and the server
+                // will emit the current-track event
+                const sleepTime = trackInfo.item.duration_ms - trackInfo.progress_ms;
+                setTimeoutRef(setTimeout(() => {
+                    playNext(false);
+                }, sleepTime));
+            } else {
+                // Non-admins
+                // TEMPORARY
+                // If the current song song is the next in the queue, assume this is the track
+                // the user requested to add (implementation to be changed)
+                if (trackQueueRef.current.length > 0 && trackInfo.item.id === trackQueueRef.current[0].id) {
+                    const newQueue = trackQueueRef.current.slice();
+                    newQueue.shift();
+                    setTrackQueue(newQueue);
+                }
+            }
         });
     };
+
+    // Array of user-selectedsongs
+    const [trackQueue, setTrackQueue] = useState([]);
+
+    // Set and update a ref to the track queue
+    // Functions like playNext depend on this ref to avoid stale closures (old state)
+    const trackQueueRef = useRef(trackQueue);
+    useEffect(() => {
+        trackQueueRef.current = trackQueue;
+    }, [trackQueue]);
+
+    // Array to hold information on a user's personal playlists
+    const [userPlaylists, setUserPlaylists] = useState([]);
+
+    // Array of songs from the selected playlist, and played songs from trackQueue
+    const [basePlaylist, setBasePlaylist] = useState([]);
+
+    // Set and update a ref to the base playlist
+    const playlistRef = useRef(basePlaylist);
+    useEffect(() => {
+        playlistRef.current = basePlaylist;
+    }, [basePlaylist]);
 
     // Component-mount effects
     useEffect(async () => {
@@ -57,45 +97,50 @@ const App = () => {
                 // Retrieve the user's playlist data
                 const playlistData = await (await fetch("/playlists")).json();
                 setUserPlaylists(playlistData.items);
+
+                // Set up queue listening events (admin exclusive)
+                socket.on("request-queue-add", track => {
+                    console.log("Someone requested to add a song to the queue...");
+                    addToQueue(track);
+                });
+
+                // TODO: account for multiple instances of the same track in different locations in the queue
+                socket.on("request-queue-remove", trackId => {
+                    console.log("Someone requested to remove their track from the queue...");
+                    removeFromQueue(trackId);
+                });
             }
 
             updateTrackInfo(); // Maybe move to when base playlist is set
         }
     }, []);
 
-    // Array of user-selectedsongs
-    const [trackQueue, setTrackQueue] = useState([]);
-
     // Append a new song to the end of the queue
     const addToQueue = track => {
+        if (!isAdminRef.current) {
+            // Only execute if the current user is not the admin
+            // TODO: Add identifier in case the same track has been added multiple times
+            //    -> To ensure the correct queue index is removed
+            console.log("Requesting to add track....");
+            socket.emit("request-queue-add", track);
+        }
         setTrackQueue(prevQueue => [...prevQueue, track]);
     };
 
     // Remove an song from the queue by track id
     const removeFromQueue = trackId => {
+        if (!isAdminRef.current) {
+            // Only execute if the user is not the admin
+            // TODO: add identifier in case the track appears multiple times in the queue.
+            //    -> To ensure the correct one is removed.
+            console.log("Requesting to remove track...");
+            socket.emit("request-queue-remove", trackId);
+        }
+
         setTrackQueue(prevQueue => {
             return prevQueue.filter(track => track.id != trackId)
         });
     };
-
-    // Array to hold information on a user's personal playlists
-    const [userPlaylists, setUserPlaylists] = useState([]);
-
-    // Array of songs from the selected playlist, and played songs from trackQueue
-    const [basePlaylist, setBasePlaylist] = useState([]);
-
-    // Set and update a ref to the track queue
-    // Functions like playNext depend on this ref to avoid stale closures (old state)
-    const trackQueueRef = useRef(trackQueue);
-    useEffect(() => {
-        trackQueueRef.current = trackQueue;
-    }, [trackQueue]);
-
-    // Set and update a ref to the base playlist
-    const playlistRef = useRef(basePlaylist);
-    useEffect(() => {
-        playlistRef.current = basePlaylist;
-    }, [basePlaylist]);
 
     // Play the next song
     // Param: forceClear - boolean - Whether the timeout function should be force-reset

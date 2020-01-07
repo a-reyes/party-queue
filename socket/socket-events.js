@@ -231,6 +231,28 @@ const handleEvents = io => {
         // Play a specified song (by URI)
         socket.on("play-track", async songUri => playTrack(io, socket, songUri));
 
+        // Handle a request to add a song to the queue
+        socket.on("request-queue-add", track => {
+            if (socket !== admin) {
+                // TODO: again, id/info on the sender
+                console.log(`${socket} is requesting to add a track...`);
+
+                // Send the track to the admin user
+                io.to(admin.id).emit("request-queue-add", track);
+            }
+        });
+
+        // Handle a request from a user to remove a song they added to the queue
+        socket.on("request-queue-remove", trackId => {
+            if (socket != admin) {
+                // TODO: again, id/info on the sender
+                console.log(`${socket} is requesting to remove their track...`);
+
+                // Send the track id to the admin user
+                io.to(admin.id).emit("request-queue-remove", trackId);
+            }
+        });
+
         socket.on("disconnect", () => {
             console.log("A user disconnected.");
             connectedUsers = connectedUsers.filter(s => s.id != socket.id);
