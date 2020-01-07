@@ -17,7 +17,7 @@ const updateSong = async (io, socket) => {
     const userSession = socket.handshake.session;
 
     // Check that the request is from an admin
-    if (!socket.isAdmin) {
+    if (!userSession.isAdmin) {
         socket.emit("server-error", {
             msg: "Error: you don't have permission to do that."
         });
@@ -91,7 +91,7 @@ const playTrack = async (io, socket, songUri) => {
     const userSession = socket.handshake.session;
 
     // Check that the request is from an admin
-    if (!socket.isAdmin) {
+    if (!userSession.isAdmin) {
         socket.emit("server-error", {
             msg: "Error: you don't have permission to do that."
         });
@@ -187,7 +187,7 @@ const handleEvents = io => {
             const userSession = socket.handshake.session;
 
             // Check that the request is from an admin
-            if (!socket.isAdmin) {
+            if (!userSession.isAdmin) {
                 socket.emit("server-error", {
                     msg: "Error: you don't have permission to do that."
                 });
