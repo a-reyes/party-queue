@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import TrackListItem from "../track-list-item/track-list-item";
 import TrackListButton from "../track-list-button/track-list-button";
 
+import "./track-search.css";
+
 const TrackSearch = ({ addToQueue }) => {
 
     // Search text entered into the text input
@@ -28,13 +30,14 @@ const TrackSearch = ({ addToQueue }) => {
 
     return (
         <div className="track-search">
-            <h2>Search box</h2>
-            <input
-                type="text" 
-                placeholder="Search..."
-                onChange={updateSearchText}
-            />
-            <button onClick={() => console.log("CLICK!")}>Search</button>
+            <div className="search-header">
+                <h2>Search</h2>
+                <input
+                    type="text" 
+                    placeholder="Search..."
+                    onChange={updateSearchText}
+                />
+            </div>
             <div className="search-results">
                 {searchResults.map(trackInfo => (
                     <TrackListItem key={trackInfo.id} trackInfo={trackInfo}>

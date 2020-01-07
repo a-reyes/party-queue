@@ -6,6 +6,8 @@ import TrackQueue from "./components/track-queue/track-queue";
 import PlaybackDisplay from "./components/playback-display/playback-display";
 import PlaybackControls from "./components/playback-controls/playback-controls";
 
+import TrackListButton from "./components/track-list-button/track-list-button";
+
 import "./temp-styles.css";
 
 // Initialize socket
@@ -189,64 +191,82 @@ const App = () => {
         if (isAdmin && basePlaylist.length < 1) {
             // Base playlist has not been selected
             return (
-                <div>
-                    <h2>Please select a base playlist:</h2>
-                    <ul>
-                        {userPlaylists.map(playlist => (
-                            <li key={playlist.id}>
-                                {playlist.name} - {playlist.owner.display_name}
-                                <button 
-                                    onClick={async () => {
-                                        const data = await (await fetch(`/playlist-tracks?id=${playlist.id}`)).json();
-                                        setBasePlaylist(data.items.map(item => item.track));
-                                    }}
-                                >
-                                    Select
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                <div className="app">
+                    <div>
+                        <h2>Please select a base playlist:</h2>
+                        <ul style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-evenly",
+                                alignItems: "flex-end",
+                                height: "80%",
+                                overflow: "hidden"
+                            }}
+                        >
+                            {userPlaylists.map(playlist => (
+                                <li key={playlist.id} style={{listStyleType: "None"}}>
+                                    <span style={{marginRight: "15px"}}>
+                                        {playlist.name} - {playlist.owner.display_name}
+                                    </span>
+                                    <TrackListButton
+                                        text="Select"
+                                        handleClick={async () => {
+                                            const data = await (await fetch(`/playlist-tracks?id=${playlist.id}`)).json();
+                                            setBasePlaylist(data.items.map(item => item.track));
+                                        }}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
             );
         } else {
             // Set-up complete, render main application
             return (
-                <div className="col-2">
-                    <TrackSearch 
-                        addToQueue={addToQueue}
-                    />
-                    <TrackQueue 
-                        tracks={trackQueue}
-                        removeFromQueue={removeFromQueue}
-                    >
-                        <PlaybackDisplay 
-                            currentTrack={currentTrack}
+                <div className="app">
+                    <div className="col-2">
+                        <TrackSearch 
+                            addToQueue={addToQueue}
                         />
-                        {(() => {
-                            if (isAdmin) {
-                                return (
-                                    <PlaybackControls 
-                                        socket={socket}
-                                        currentTrack={currentTrack}
-                                        basePlaylist={basePlaylist}
-                                        trackQueue={trackQueue}
-                                        timeoutRef={timeoutRef}
-                                        removeFromQueue={removeFromQueue}
-                                        playNext={playNext}
-                                        setBasePlaylist={setBasePlaylist}
-                                    />
-                                )
-                            }
-                        })()}
-                    </TrackQueue>
+                        <TrackQueue 
+                            tracks={trackQueue}
+                            removeFromQueue={removeFromQueue}
+                        >
+                            <PlaybackDisplay 
+                                currentTrack={currentTrack}
+                            />
+                            {(() => {
+                                if (isAdmin) {
+                                    return (
+                                        <PlaybackControls 
+                                            socket={socket}
+                                            currentTrack={currentTrack}
+                                            basePlaylist={basePlaylist}
+                                            trackQueue={trackQueue}
+                                            timeoutRef={timeoutRef}
+                                            removeFromQueue={removeFromQueue}
+                                            playNext={playNext}
+                                            setBasePlaylist={setBasePlaylist}
+                                        />
+                                    )
+                                }
+                            })()}
+                        </TrackQueue>
+                    </div>
                 </div>
             );
         }
     } else {
         // User needs to be authenticated
         return (
-            <div>
-                <a href="/login">Connect Spotify</a>
+            <div className="app">
+                <a href="/login" style={{alignSelf: "center"}}>
+                    <TrackListButton
+                        text="Connect Spotify"
+                        handleClick={null}
+                    />
+                </a>
             </div>
         );
     }

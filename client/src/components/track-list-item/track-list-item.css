@@ -1,0 +1,10 @@
+.track-list-item {
+    background-color: rgb(49, 49, 49);
+    padding: 5px;
+    margin-bottom: 2px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+}

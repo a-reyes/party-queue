@@ -1,0 +1,10 @@
+.track-list-button {
+    border: none;
+    padding: 6px 18px;
+    color: white;
+    background-color: rgb(6, 173, 0);
+}
+
+.track-list-button:hover {
+    background-color: rgb(6, 153, 1);
+}

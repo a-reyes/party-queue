@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import TrackListButton from "../track-list-button/track-list-button";
+
+import "./playback-controls.css";
 
 const PlaybackControls = ({ socket, basePlaylist,
                             timeoutRef, playNext, setBasePlaylist }) => {
@@ -38,12 +41,19 @@ const PlaybackControls = ({ socket, basePlaylist,
     };
 
     return (
-        <div>
-            <button onClick={playPrevious}>Previous</button>
-            <button onClick={playPause}>
-                {isPlaying ? "Pause" : "Play"}
-            </button>
-            <button onClick={playNext}>Next</button>
+        <div className="playback-controls">
+            <TrackListButton 
+                text="Previous"
+                handleClick={playPrevious}
+            />
+            <TrackListButton 
+                text={isPlaying ? "Pause" : "Play"}
+                handleClick={playPrevious}
+            />
+            <TrackListButton 
+                text="Next"
+                handleClick={playNext}
+            />
         </div>
     );
 };

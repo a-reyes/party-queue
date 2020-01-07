@@ -1,0 +1,24 @@
+.track-search {
+    background-color: black;
+    flex: 50%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    margin: 10px 20px;
+}
+
+.search-header:first-child {
+    padding-bottom: 10px;
+}
+
+.search-results {
+    overflow-y: scroll;
+    overflow-x: wrap;
+}

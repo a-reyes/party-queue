@@ -1,0 +1,14 @@
+.track-queue {
+    background-color: black;
+    flex: 50%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+}
+
+.track-list {
+    overflow-x: wrap;
+    overflow-y: scroll;
+}
