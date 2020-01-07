@@ -1,6 +1,6 @@
 {
   "name": "party-queue",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Full stack web application that uses the Spotify API to allow a group of users to collaboratively add to the same song queue.",
   "main": "server.js",
   "scripts": {
