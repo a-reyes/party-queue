@@ -1,6 +1,9 @@
 # PartyQueue
 PartyQueue is a full stack web application built using JavaScript, with the purpose of allowing multiple people to add songs to the same queue on [Spotify](https://www.spotify.com/). The idea for the project came from the inconvenience of everyone needing to ask one person for song requests in a group setting.
 
+## Demo
+A video demo of the latest version is available [here](https://www.youtube.com/watch?v=vViiRHVo4p4).
+
 ## Installation
 If you wish to install the project on your own computer, it does require a bit of set up at this stage.
 
