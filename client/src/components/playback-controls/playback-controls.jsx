@@ -48,7 +48,7 @@ const PlaybackControls = ({ socket, basePlaylist,
             />
             <TrackListButton 
                 text={isPlaying ? "Pause" : "Play"}
-                handleClick={playPrevious}
+                handleClick={playPause}
             />
             <TrackListButton 
                 text="Next"
