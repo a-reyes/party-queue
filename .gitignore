@@ -109,7 +109,7 @@ typings/
 .nuxt
 
 # react / gatsby 
-public/
+# public/
 
 # vuepress build output
 .vuepress/dist
@@ -130,6 +130,7 @@ public/
 
 node_modules
 bower_componets
+build
 
 *.sublime*
 
@@ -164,3 +165,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/node,react,macos,windows
+
+### Other
+config.js
