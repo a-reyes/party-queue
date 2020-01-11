@@ -1,12 +1,26 @@
+/**
+ * Playback router module
+ * 
+ * Handles requests relating to track playback on the user's device.
+ * @module routes/playback-router
+ * @author Alex Reyes
+ */
+
+
 const express = require("express");
 const request = require("request-promise-native");
 
-// Initialize router
+
 const router = express.Router();
 
-// Routes
 
-// Get information on the user's currently playing track
+/**
+ * Route to get information on the currently playing track, from Spotify.
+ * 
+ * Responses:
+ *      200: JSON response as recieved from the Spotify API.
+ *              - @see <a href="https://developer.spotify.com/documentation/web-api/reference/player/get-the-users-currently-playing-track/">Spotify Documentation</a>
+ */
 router.get("/current-track", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/currently-playing",
@@ -44,7 +58,14 @@ router.get("/current-track", async (req, res) => {
     }
 });
 
-// Resume playback on the active device
+
+/**
+ * Route to resume paused playback on a user's device.
+ * 
+ * Responses:
+ *      204: when playback resumes successfully (no body)
+ *              - @see <a href="https://developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/">Spotify Documentation</a>
+ */
 router.get("/resume", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/play",
@@ -77,7 +98,14 @@ router.get("/resume", async (req, res) => {
     }
 });
 
-// Pause playback on the active device
+
+/**
+ * Route to pause playback on a user's device.
+ * 
+ * Responses:
+ *      204: when playback pauses successfully (no body)
+ *              - @see <a href="https://developer.spotify.com/documentation/web-api/reference/player/pause-a-users-playback/">Spotify Documentation</a>
+ */
 router.get("/pause", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/pause",
@@ -109,7 +137,11 @@ router.get("/pause", async (req, res) => {
     }
 });
 
-// Play the next track on the active device
+
+/**
+ * Route to play the next song on the user's device
+ * @deprecated
+ */
 router.get("/next", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/next",
@@ -142,7 +174,11 @@ router.get("/next", async (req, res) => {
     }
 });
 
-// Play the previous track on the active device
+
+/**
+ * Route to play the previous song on the user's device
+ * @deprecated
+ */
 router.get("/previous", async (req, res) => {
     const reqOptions = {
         uri: "https://api.spotify.com/v1/me/player/previous",

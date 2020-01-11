@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2020-01-11
+### Added
+- Documentation to all routes and <span>socket</span>.io events on the server
+
+### Deprecated
+- Routes `/playback/next` and `/playback/previous`
+
 ## [0.1.0] - 2020-01-07
 ### Added
 - CHANGELOG file to track changes to this project.

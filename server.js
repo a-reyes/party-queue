@@ -1,4 +1,12 @@
-// Modules
+/**
+ * Server module
+ * 
+ * Main file of the application's backend.
+ * @module server
+ * @author Alex Reyes
+ */
+
+
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
@@ -41,6 +49,13 @@ app.use(session);
 app.use("/login", loginRouter);
 app.use("/playback", playbackRouter);
 
+
+/**
+ * Middleware function to validate search queries.
+ * 
+ * Responses:
+ *      400: text response if the search field is empty.
+ */
 app.get("/search", (req, res, next) => {
     const query = req.query;
     if (!query.search) {
@@ -50,6 +65,16 @@ app.get("/search", (req, res, next) => {
     }
 });
 
+
+/**
+ * Route to get song track results based on a passed query string
+ * 
+ * Responses:
+ *      200: JSON response as recieved from the Spotify API.
+ *              - @see <a href="https://developer.spotify.com/documentation/web-api/reference/search/search/">Spotify Documentation</a>
+ *      
+ *      500: text response if the Spotify request could not be completed
+ */
 app.get("/search", async (req, res) => {
     // TODO: verify that user is logged in
     const search = req.query.search;
@@ -87,7 +112,16 @@ app.get("/search", async (req, res) => {
 
 });
 
-// Return the user's playlists
+
+/**
+ * Route to get a data on a user's personal playlists
+ * 
+ * Responses:
+ *      200: JSON response as recieved from the Spotify API.
+ *              - @see <a href="https://developer.spotify.com/documentation/web-api/reference/playlists/get-a-list-of-current-users-playlists/">Spotify Documentation</a>
+ *      
+ *      500: text response if the Spotify request could not be completed
+ */
 app.get("/playlists", async (req, res) => {
     console.log("Finding user playlists");
 
@@ -126,7 +160,22 @@ app.get("/playlists", async (req, res) => {
     }
 });
 
-// Return the tracklist of a specified playlist
+
+/**
+ * Route to get a data on the tracks in a user's playlist
+ * 
+ * Query parameters:
+ *      id: the unique ID of a user's playlist
+ * 
+ * Responses:
+ *      200: JSON response as recieved from the Spotify API.
+ *              - @see <a href="https://developer.spotify.com/documentation/web-api/reference/playlists/get-playlists-tracks/">Spotify Documentation</a>
+ * 
+ *      400: JSON response if no id is included in the query. Has the attributes:
+ *              - msg {string}: an error message
+ *      
+ *      500: text response if the Spotify request could not be completed
+ */
 app.get("/playlist-tracks", async (req, res) => {
     if (!req.query.id) {
         res.status(400).json({
@@ -171,7 +220,12 @@ app.get("/playlist-tracks", async (req, res) => {
     }
 });
 
-// Serve react app on all other non-specified routes
+/**
+ * Catch-all to serve the react application in response to all other routes
+ * 
+ * Responses:
+ *      200: the react application
+ */
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, BUILD_PATH, "index.html"));
 });
