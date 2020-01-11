@@ -1,15 +1,28 @@
+/**
+ * Login router module
+ * 
+ * Handles routes related to user authentication with the app itself, as well as the 
+ * Spotify API.
+ * @module routes/login-router
+ * @author Alex Reyes
+ */
+
 
 const express = require("express");
 const request = require("request-promise-native");
 const querystring = require("querystring");
 const config = require("../config");
 
-// Initialize router
+
 const router = express.Router();
 
-// Routes
 
-// Allow the user to authorize their spotify account
+/**
+ * Route set up to initiate Spotify authentication.
+ * 
+ * Requests to this route will redirect the user out of the application, for third-party
+ * authentication on the Spotify website.
+ */
 router.get("/", (req, res) => {
     // TODO: implement dynamic state
     const STATE = "to-be-implemented";
@@ -17,7 +30,6 @@ router.get("/", (req, res) => {
     // Set user session state parameter
     req.session.state = STATE;
 
-    // Build query string
     const query = querystring.encode({
         client_id: config.CLIENT_ID,
         response_type: "code",
@@ -33,11 +45,16 @@ router.get("/", (req, res) => {
         ].join(" ") 
     });
 
-    // Redirect to spotify
     res.redirect(`https://accounts.spotify.com/authorize?${query}`);
 });
 
-// Redirect route after external spotify login
+
+/**
+ * Route to handle redirection after Spotify login
+ * 
+ * Spotify will redirect users to this route after authentication. This route then
+ * requests the user's authentication keys to give them access to the app's features.
+ */
 router.get("/callback", async (req, res) => {
     const { code, state, error } = req.query;
     const userState = req.session.state;
@@ -98,7 +115,15 @@ router.get("/callback", async (req, res) => {
     }
 });
 
-// Route to determine if a user is already authenticated
+
+/**
+ * Route to determine if a user has been authenticated.
+ * 
+ * Responses:
+ *      200: JSON response with attributes:
+ *              - isLoggedIn {boolean}:  true if the user has been authenticated with Spotify
+ *              - isAdmin {boolean}:    true if the user is the admin of their playlist room
+ */
 router.get("/status", (req, res) => {
     let isLoggedIn;
     if (req.session.isLoggedIn) {

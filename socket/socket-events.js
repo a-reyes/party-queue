@@ -1,11 +1,23 @@
+/**
+ * Socket event module
+ * 
+ * Handles socket.io events on the server.
+ * @module socket/socket-events
+ * @author Alex Reyes
+ */
+
+
 const request = require("request-promise-native");
+
 
 // Temporary
 let connectedUsers = [];
 let admin;
 
+
 /**
- * Requests track information from Spotify, and emits it to the clients.
+ * Requests track information from Spotify, and emits it to the clients
+ * 
  * Information is given about the user's currently playing song on their
  * Spotify account. Only a user (socket) with admin priveledges should
  * be passed to this method.
@@ -77,15 +89,17 @@ const updateSong = async (io, socket) => {
 
 };
 
+
 /**
- * Sends a request to Spotify to play a track on the user's behalf.
+ * Sends a request to Spotify to play a track on the user's behalf
+ * 
  * If songURI is specified, this function will attempt to play that song, else
  * Spotify will attempt to resume paused playback on the user's device.
  * Only a user (socket) with admin priveledges should
  * be passed to this method.
  * @param {SocketIO.Server} io 
  * @param {SocketIO.Socket} socket - An admin user's socket
- * @param {string} songUri - The URI of the song on Spotify.
+ * @param {string} songUri - The URI of the song on Spotify
  */
 const playTrack = async (io, socket, songUri) => {
     const userSession = socket.handshake.session;
@@ -139,11 +153,13 @@ const playTrack = async (io, socket, songUri) => {
     }
 };
 
+
 /**
  * Set up emit event handlers for the io server.
  * @param {SocketIO.Server} io 
  */
 const handleEvents = io => {
+
 
     /**
      * Handle emit events for individual sockets, once connected.
@@ -167,7 +183,12 @@ const handleEvents = io => {
         // Update session with the isAdmin property
         socket.handshake.session.save();
 
-        // Send clients information on the current song
+
+        /**
+         * Send clients information on the current song
+         * 
+         * Emits: "current-track"
+         */
         socket.on("current-track", () => {
             const userSession = socket.handshake.session;
             if (userSession.isAdmin) {
@@ -179,7 +200,14 @@ const handleEvents = io => {
             }
         });
 
-        // Pause playback on the user's device
+
+        /**
+         * Pauses playback on a user's device.
+         * 
+         * This event should only be emitted by an admin's client.
+         * 
+         * Emits: "server-error" if the recieving socket is not an admin, or the request cannot be completed
+         */
         socket.on("pause-playback", async () => {
             // TODO: Check if song already paused
             console.log("Pausing playback...");
@@ -225,13 +253,30 @@ const handleEvents = io => {
             }
         });
 
-        // Resume playback on the user's device
+
+        /**
+         * Resumes playback on a user's device.
+         * 
+         * This event should only be emitted by an admin's client.
+         */
         socket.on("resume-playback", async () => playTrack(io, socket, null));
 
-        // Play a specified song (by URI)
+
+        /**
+         * Plays a specified song, by song URI.
+         * 
+         * This event should only be emitted by an admin's client.
+         * @param {string} songUri - the unique URI of the track on Spotify
+         */
         socket.on("play-track", async songUri => playTrack(io, socket, songUri));
 
-        // Handle a request to add a song to the queue
+
+        /**
+         * Requests that a specified song be added to the troup queue.
+         * 
+         * @param {Object} track - a track object, as specified by Spotify
+         * @see <a href="https://developer.spotify.com/documentation/web-api/reference/object-model/#track-object-full">Spotify Documentation</a>
+         */
         socket.on("request-queue-add", track => {
             if (socket !== admin) {
                 // TODO: again, id/info on the sender
@@ -242,17 +287,27 @@ const handleEvents = io => {
             }
         });
 
-        // Handle a request from a user to remove a song they added to the queue
-        socket.on("request-queue-remove", trackId => {
+
+        /**
+         * Requests that a user added track be removed from the group queue
+         * 
+         * For the request to succeed, this event must be emitted by the user who added the track initially.
+         * @param {string} songUri - the unique URI of the track on Spotify
+         */
+        socket.on("request-queue-remove", songUri => {
             if (socket != admin) {
                 // TODO: again, id/info on the sender
                 console.log(`${socket} is requesting to remove their track...`);
 
                 // Send the track id to the admin user
-                io.to(admin.id).emit("request-queue-remove", trackId);
+                io.to(admin.id).emit("request-queue-remove", songUri);
             }
         });
 
+
+        /**
+         * Handles cleanup when a user disconnects
+         */
         socket.on("disconnect", () => {
             console.log("A user disconnected.");
             connectedUsers = connectedUsers.filter(s => s.id != socket.id);
