@@ -10,8 +10,10 @@
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
+const mongoose = require("mongoose");
 const expressSession = require("express-session");
 const sharedSession = require("express-socket.io-session");
+const MongoDBStore = require("connect-mongodb-session")(expressSession);
 const request = require("request-promise-native");
 const path = require("path");
 
@@ -28,6 +30,15 @@ const config = require("./config");
 // Constants
 const BUILD_PATH = "client/build";
 const SESSION_LENGTH = 3600 * 1000 * 1;  // 1 hour
+const ObjectId = mongoose.Types.ObjectId;
+
+// Setup database
+mongoose.connect("mongodb://localhost/party-queue", {useNewUrlParser: true});
+const db = mongoose.connection;
+const sessionStore = new MongoDBStore({
+    uri: "mongodb://localhost:27017/party-queue-tokens",
+    collection: "sessions"
+});
 
 // Initialize express app and server
 const app = express();
@@ -41,7 +52,9 @@ const session = expressSession({
     saveUninitialized: true,
     cookie: {
         maxAge: SESSION_LENGTH
-    }
+    },
+    store: sessionStore,
+    rolling: true,
 });
 app.use(session);
 
@@ -241,5 +254,9 @@ io.use(sharedSession(session, {
 // Setup socket events
 handleEvents(io);
 
-// Start server
-server.listen(config.PORT, () => console.log(`Listening on Port ${config.PORT}...`));
+// Connect to database
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+    // Start server
+    server.listen(config.PORT, () => console.log(`Listening on Port ${config.PORT}...`));
+});
