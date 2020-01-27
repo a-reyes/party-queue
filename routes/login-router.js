@@ -11,6 +11,8 @@
 const express = require("express");
 const request = require("request-promise-native");
 const querystring = require("querystring");
+const mongoose = require("mongoose");
+const UserModel = require("../schemas/userschema");
 const config = require("../config");
 
 
@@ -101,11 +103,49 @@ router.get("/callback", async (req, res) => {
             const accessToken = body.access_token;
             const refreshToken = body.refresh_token;
 
+            // Request user information
+            let userData;
+            try {
+                userData = await request.get({
+                    uri: "https://api.spotify.com/v1/me",
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    },
+                    json: true,
+                });
+            } catch (err) {
+                console.log(err);
+                res.status(500).send("Error: couldn't get user information.");
+                return;
+            }
+
+            // Add the user to the database
+            let user = await UserModel.findOne({username: userData.id});
+            if (!user) {
+                // Create a new user
+                user = new UserModel({
+                    username: userData.id,
+                    email: userData.email,
+                    displayName: userData.display_name,
+                    isPremium: userData.product.toLowerCase() === "premium",
+                });
+
+                try {
+                    user = await user.save();
+                } catch (err) {
+                    console.log(err);
+                    res.status(500).send("Error 500: Database error.");
+                    return;
+                }
+            }
+
+            // Save info to session
             req.session.accessToken = accessToken;
             req.session.refreshToken = refreshToken;
             req.session.isLoggedIn = true;
+            req.session.userId = user._id;
 
-            res.redirect("/")
+            res.redirect("/");
 
         } else {
             // TODO: handle alternate status codes
