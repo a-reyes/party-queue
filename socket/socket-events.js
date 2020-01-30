@@ -8,6 +8,8 @@
 
 
 const request = require("request-promise-native");
+const mongoose = require("mongoose");
+const PartyModel = require("../schemas/partyschema");
 
 
 // Temporary
